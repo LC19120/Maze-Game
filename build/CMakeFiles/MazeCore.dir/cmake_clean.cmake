@@ -1,4 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o"
+  "CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o.d"
+  "CMakeFiles/MazeCore.dir/src/app.cpp.o"
+  "CMakeFiles/MazeCore.dir/src/app.cpp.o.d"
   "CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o"
   "CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o.d"
   "CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o"

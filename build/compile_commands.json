@@ -25,6 +25,18 @@
 },
 {
   "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/Thread/ThreadPool.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Thread/ThreadPool.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/app.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/app.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/app.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/app.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
   "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem \"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeGame.dir/src/main.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/main.cpp\"",
   "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/main.cpp",
   "output": "CMakeFiles/MazeGame.dir/src/main.cpp.o"

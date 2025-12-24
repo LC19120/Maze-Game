@@ -1,2 +1,2 @@
-/usr/bin/ar qc libMazeCore.a CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o
+/usr/bin/ar qc libMazeCore.a CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o CMakeFiles/MazeCore.dir/src/app.cpp.o
 /usr/bin/ranlib libMazeCore.a

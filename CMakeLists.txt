@@ -44,6 +44,8 @@ add_library(MazeCore
     src/core/MazeBuilder.cpp
     src/core/PathFinder.cpp
     src/core/MazeViewer.cpp
+    src/Thread/ThreadPool.cpp
+    src/app.cpp
 )
 
 target_include_directories(MazeCore

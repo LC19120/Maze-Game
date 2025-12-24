@@ -12,3 +12,9 @@
 #include <future>
 #include <mutex>
 #include <functional>
+#include <condition_variable>
+#include <queue>
+#include <utility>
+#include <type_traits>
+#include <atomic>
+#include <memory>

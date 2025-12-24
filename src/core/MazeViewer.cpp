@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #if __has_include(<glad/glad.h>)
   #include <glad/glad.h>
@@ -10,196 +11,327 @@
   #error "glad/glad.h not found. Check ThirdPart/Mac/include path."
 #endif
 
-#if __has_include(<GFLW/glfw3.h>)
-  #include <GFLW/glfw3.h>
-#elif __has_include(<GLFW/glfw3.h>)
+#if __has_include(<GLFW/glfw3.h>)
   #include <GLFW/glfw3.h>
+#elif __has_include(<GFLW/glfw3.h>)
+  // 兼容你工程里可能存在的非标准路径（注意：GFLW 很可能是拼写错误）
+  #include <GFLW/glfw3.h>
 #else
-  #error "GLFW header not found (GFLW/glfw3.h or GLFW/glfw3.h)."
+  #error "GLFW header not found."
 #endif
 
-MazeViewer MazeViewer::getMazeViewer(Maze maze)
-{
-    MazeViewer viewer;
-    viewer.maze = std::move(maze);
-    return viewer;
-}
+struct Vertex {
+    float x, y;
+    float r, g, b;
+};
 
-static GLuint CompileShader(GLenum type, const char* src)
+static GLuint CompileShader_(GLenum type, const char* src)
 {
-    GLuint s = glCreateShader(type);
-    glShaderSource(s, 1, &src, nullptr);
-    glCompileShader(s);
+    GLuint shader = glCreateShader(type);
+    glShaderSource(shader, 1, &src, nullptr);
+    glCompileShader(shader);
 
-    GLint ok = GL_FALSE;
-    glGetShaderiv(s, GL_COMPILE_STATUS, &ok);
-    if (ok != GL_TRUE) {
-        char log[2048]{};
-        glGetShaderInfoLog(s, sizeof(log), nullptr, log);
-        std::cerr << "Shader compile error: " << log << "\n";
-        glDeleteShader(s);
+    int success = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infolog[1024];
+        glGetShaderInfoLog(shader, 1024, nullptr, infolog);
+        std::cerr << "Shader compilation failed: " << infolog << "\n";
+        glDeleteShader(shader);
         return 0;
     }
-    return s;
+    return shader;
 }
 
-static GLuint LinkProgram(GLuint vs, GLuint fs)
+static GLuint LinkProgram_(GLuint vs, GLuint fs)
 {
-    GLuint p = glCreateProgram();
-    glAttachShader(p, vs);
-    glAttachShader(p, fs);
-    glLinkProgram(p);
+    GLuint prog = glCreateProgram();
+    glAttachShader(prog, vs);
+    glAttachShader(prog, fs);
+    glLinkProgram(prog);
 
-    GLint ok = GL_FALSE;
-    glGetProgramiv(p, GL_LINK_STATUS, &ok);
-    if (ok != GL_TRUE) {
-        char log[2048]{};
-        glGetProgramInfoLog(p, sizeof(log), nullptr, log);
-        std::cerr << "Program link error: " << log << "\n";
-        glDeleteProgram(p);
+    int success = 0;
+    glGetProgramiv(prog, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infolog[1024];
+        glGetProgramInfoLog(prog, 1024, nullptr, infolog);
+        std::cerr << "Program linking failed: " << infolog << "\n";
+        glDeleteProgram(prog);
         return 0;
     }
-    return p;
+    return prog;
 }
 
-void MazeViewer::displayMaze() const
+static void FramebufferSizeCallback_(GLFWwindow* /*w*/, int width, int height)
 {
-    if (maze.grid.empty() || maze.grid[0].empty()) {
-        std::cerr << "MazeViewer: maze grid is empty.\n";
-        return;
-    }
+    glViewport(0, 0, width, height);
+}
 
+MazeViewer& MazeViewer::getInstance()
+{
+    static MazeViewer instance;
+    return instance;
+}
+
+MazeViewer::MazeViewer() = default;
+
+MazeViewer::~MazeViewer()
+{
+    requestClose();
+    shutdownGL_();
+}
+
+void MazeViewer::setMaze(const Maze& newMaze)
+{
+    std::lock_guard<std::mutex> lock(mazeMutex_);
+    maze_ = newMaze;
+    mazeLoaded_ = true;
+    mazeDirty_ = true;
+}
+
+bool MazeViewer::isOpen() const
+{
+    return window_ != nullptr && glfwWindowShouldClose(static_cast<GLFWwindow*>(window_)) == 0;
+}
+
+void MazeViewer::requestClose()
+{
+    closeRequested_.store(true, std::memory_order_relaxed);
+}
+
+void MazeViewer::initWindowAndGL_()
+{
     if (!glfwInit()) {
-        std::cerr << "glfwInit failed.\n";
-        return;
+        throw std::runtime_error("glfwInit failed");
     }
 
-    // macOS core profile
+#if defined(__APPLE__)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#if defined(__APPLE__)
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(900, 900, "Maze (OpenGL)", nullptr, nullptr);
-    if (!window) {
-        std::cerr << "glfwCreateWindow failed.\n";
+    GLFWwindow* win = glfwCreateWindow(fbW_, fbH_, "Maze Viewer", nullptr, nullptr);
+    if (!win) {
         glfwTerminate();
-        return;
+        throw std::runtime_error("glfwCreateWindow failed");
     }
 
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    window_ = win;
+    glfwMakeContextCurrent(win);
+    glfwSwapInterval(1); // vsync
+    glfwSetFramebufferSizeCallback(win, FramebufferSizeCallback_);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "gladLoadGLLoader failed. (Did you compile glad.c?)\n";
-        glfwDestroyWindow(window);
+        glfwDestroyWindow(win);
+        window_ = nullptr;
         glfwTerminate();
-        return;
+        throw std::runtime_error("gladLoadGLLoader failed");
     }
+
+    glViewport(0, 0, fbW_, fbH_);
 
     const char* vsSrc = R"GLSL(
         #version 330 core
-        layout (location = 0) in vec2 aPos;
-        void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
+        layout(location = 0) in vec2 aPos;
+        layout(location = 1) in vec3 aColor;
+        out vec3 vColor;
+        void main() {
+            vColor = aColor;
+            gl_Position = vec4(aPos, 0.0, 1.0);
+        }
     )GLSL";
 
     const char* fsSrc = R"GLSL(
         #version 330 core
+        in vec3 vColor;
         out vec4 FragColor;
-        void main() { FragColor = vec4(0.0, 0.0, 0.0, 1.0); } // walls: black
+        void main() {
+            FragColor = vec4(vColor, 1.0);
+        }
     )GLSL";
 
-    GLuint vs = CompileShader(GL_VERTEX_SHADER, vsSrc);
-    GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fsSrc);
+    GLuint vs = CompileShader_(GL_VERTEX_SHADER, vsSrc);
+    GLuint fs = CompileShader_(GL_FRAGMENT_SHADER, fsSrc);
     if (!vs || !fs) {
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return;
+        if (vs) glDeleteShader(vs);
+        if (fs) glDeleteShader(fs);
+        throw std::runtime_error("Shader compile failed");
     }
 
-    GLuint prog = LinkProgram(vs, fs);
+    program_ = LinkProgram_(vs, fs);
     glDeleteShader(vs);
     glDeleteShader(fs);
-    if (!prog) {
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return;
+    if (!program_) {
+        throw std::runtime_error("Program link failed");
     }
 
-    const int rows = static_cast<int>(maze.grid.size());
-    const int cols = static_cast<int>(maze.grid[0].size());
+    glGenVertexArrays(1, &vao_);
+    glGenBuffers(1, &vbo_);
 
-    // 只为“墙”生成三角形（两三角=1方块=6顶点，每顶点2 float）
-    std::vector<float> verts;
-    verts.reserve(static_cast<size_t>(rows * cols * 12)); // 大概值
+    glBindVertexArray(vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
 
-    auto cellToNdc = [&](int r, int c, float& x0, float& y0, float& x1, float& y1) {
-        // 映射到 [-1,1]，并让 r=0 在窗口顶部（y 从 1 到 -1）
-        const float fx0 = static_cast<float>(c) / static_cast<float>(cols);
-        const float fx1 = static_cast<float>(c + 1) / static_cast<float>(cols);
-        const float fy0 = static_cast<float>(r) / static_cast<float>(rows);
-        const float fy1 = static_cast<float>(r + 1) / static_cast<float>(rows);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 
-        x0 = -1.0f + 2.0f * fx0;
-        x1 = -1.0f + 2.0f * fx1;
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 
-        // 注意翻转 y
-        y0 =  1.0f - 2.0f * fy0;
-        y1 =  1.0f - 2.0f * fy1;
-    };
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void MazeViewer::shutdownGL_()
+{
+    if (program_) { glDeleteProgram(program_); program_ = 0; }
+    if (vbo_) { glDeleteBuffers(1, &vbo_); vbo_ = 0; }
+    if (vao_) { glDeleteVertexArrays(1, &vao_); vao_ = 0; }
+
+    if (window_) {
+        glfwDestroyWindow(static_cast<GLFWwindow*>(window_));
+        window_ = nullptr;
+        glfwTerminate();
+    }
+}
+
+void MazeViewer::processEvents_()
+{
+    glfwPollEvents();
+}
+
+static void PushCell_(std::vector<Vertex>& out,
+                      float x0, float y0, float x1, float y1,
+                      float r, float g, float b)
+{
+    // two triangles
+    out.push_back({x0, y0, r, g, b});
+    out.push_back({x1, y0, r, g, b});
+    out.push_back({x1, y1, r, g, b});
+
+    out.push_back({x0, y0, r, g, b});
+    out.push_back({x1, y1, r, g, b});
+    out.push_back({x0, y1, r, g, b});
+}
+
+void MazeViewer::rebuildMeshFromMaze_(const Maze& m)
+{
+    const auto& grid = m.grid;
+    const int rows = static_cast<int>(grid.size());
+    if (rows <= 0) { vertexCount_ = 0; return; }
+    const int cols = static_cast<int>(grid[0].size());
+    if (cols <= 0) { vertexCount_ = 0; return; }
+
+    std::vector<Vertex> verts;
+    verts.reserve(static_cast<size_t>(rows) * static_cast<size_t>(cols) * 6);
+
+    // fit grid into NDC [-1,1] keeping aspect
+    const float aspect = (fbH_ == 0) ? 1.0f : (static_cast<float>(fbW_) / static_cast<float>(fbH_));
+    float gridW = 2.0f;
+    float gridH = 2.0f;
+
+    // scale so cells stay square in NDC
+    if (aspect >= 1.0f) {
+        gridW = 2.0f * aspect;
+        gridH = 2.0f;
+    } else {
+        gridW = 2.0f;
+        gridH = 2.0f / aspect;
+    }
+
+    const float cellW = gridW / static_cast<float>(cols);
+    const float cellH = gridH / static_cast<float>(rows);
+    const float cell = std::min(cellW, cellH);
+
+    const float totalW = cell * cols;
+    const float totalH = cell * rows;
+    const float startX = -totalW * 0.5f;
+    const float startY =  totalH * 0.5f;
+
+    // colors
+    const float wallR = 0.05f, wallG = 0.05f, wallB = 0.05f;
+    const float pathR = 0.95f, pathG = 0.95f, pathB = 0.95f;
 
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
-            if (maze.grid[r][c] == 0) continue; // 路不画
+            const float x0 = startX + c * cell;
+            const float y0 = startY - (r + 1) * cell;
+            const float x1 = x0 + cell;
+            const float y1 = y0 + cell;
 
-            float x0, y0, x1, y1;
-            cellToNdc(r, c, x0, y0, x1, y1);
-
-            // 两个三角形： (x0,y0)-(x1,y0)-(x1,y1) 和 (x0,y0)-(x1,y1)-(x0,y1)
-            verts.insert(verts.end(), {
-                x0, y0,  x1, y0,  x1, y1,
-                x0, y0,  x1, y1,  x0, y1
-            });
+            const bool isWall = (grid[r][c] == 1);
+            PushCell_(verts, x0, y0, x1, y1,
+                      isWall ? wallR : pathR,
+                      isWall ? wallG : pathG,
+                      isWall ? wallB : pathB);
         }
     }
 
-    GLuint vao = 0, vbo = 0;
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
     glBufferData(GL_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>(verts.size() * sizeof(float)),
+                 static_cast<GLsizeiptr>(verts.size() * sizeof(Vertex)),
                  verts.data(),
-                 GL_STATIC_DRAW);
+                 GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    vertexCount_ = static_cast<int>(verts.size());
+}
 
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+void MazeViewer::rebuildMeshIfDirty_()
+{
+    Maze local{};
+    bool doRebuild = false;
 
-        int w = 0, h = 0;
-        glfwGetFramebufferSize(window, &w, &h);
-        glViewport(0, 0, w, h);
-
-        glClearColor(1.f, 1.f, 1.f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(prog);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(verts.size() / 2));
-
-        glfwSwapBuffers(window);
+    {
+        std::lock_guard<std::mutex> lock(mazeMutex_);
+        if (mazeLoaded_ && mazeDirty_) {
+            local = maze_;
+            mazeDirty_ = false;
+            doRebuild = true;
+        }
     }
 
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
-    glDeleteProgram(prog);
+    if (doRebuild) {
+        rebuildMeshFromMaze_(local);
+    }
+}
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+void MazeViewer::renderFrame_()
+{
+    int w = 0, h = 0;
+    glfwGetFramebufferSize(static_cast<GLFWwindow*>(window_), &w, &h);
+    fbW_ = w; fbH_ = h;
+
+    rebuildMeshIfDirty_();
+
+    glClearColor(0.90f, 0.90f, 0.90f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    if (vertexCount_ > 0) {
+        glUseProgram(program_);
+        glBindVertexArray(vao_);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount_);
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
+
+    glfwSwapBuffers(static_cast<GLFWwindow*>(window_));
+}
+
+void MazeViewer::run()
+{
+    initWindowAndGL_();
+
+    while (!glfwWindowShouldClose(static_cast<GLFWwindow*>(window_)))
+    {
+        if (closeRequested_.load(std::memory_order_relaxed)) {
+            glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_), GLFW_TRUE);
+        }
+
+        processEvents_();
+        renderFrame_();
+    }
+
+    shutdownGL_();
 }
