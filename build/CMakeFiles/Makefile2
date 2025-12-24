@@ -63,11 +63,13 @@ CMAKE_BINARY_DIR = "/Users/butcher/Desktop/Maze Game/Maze-Game/build"
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
+all: CMakeFiles/glad.dir/all
 all: CMakeFiles/MazeCore.dir/all
 all: CMakeFiles/MazeGame.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
+codegen: CMakeFiles/glad.dir/codegen
 codegen: CMakeFiles/MazeCore.dir/codegen
 codegen: CMakeFiles/MazeGame.dir/codegen
 .PHONY : codegen
@@ -77,15 +79,48 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
+clean: CMakeFiles/glad.dir/clean
 clean: CMakeFiles/MazeCore.dir/clean
 clean: CMakeFiles/MazeGame.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/glad.dir
+
+# All Build rule for target.
+CMakeFiles/glad.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=7,8 "Built target glad"
+.PHONY : CMakeFiles/glad.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/glad.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/glad.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 0
+.PHONY : CMakeFiles/glad.dir/rule
+
+# Convenience name for target.
+glad: CMakeFiles/glad.dir/rule
+.PHONY : glad
+
+# codegen rule for target.
+CMakeFiles/glad.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=7,8 "Finished codegen for target glad"
+.PHONY : CMakeFiles/glad.dir/codegen
+
+# clean rule for target.
+CMakeFiles/glad.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/clean
+.PHONY : CMakeFiles/glad.dir/clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/MazeCore.dir
 
 # All Build rule for target.
-CMakeFiles/MazeCore.dir/all:
+CMakeFiles/MazeCore.dir/all: CMakeFiles/glad.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=1,2,3,4 "Built target MazeCore"
@@ -93,7 +128,7 @@ CMakeFiles/MazeCore.dir/all:
 
 # Build rule for subdir invocation for target.
 CMakeFiles/MazeCore.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 4
+	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/MazeCore.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 0
 .PHONY : CMakeFiles/MazeCore.dir/rule
@@ -117,6 +152,7 @@ CMakeFiles/MazeCore.dir/clean:
 # Target rules for target CMakeFiles/MazeGame.dir
 
 # All Build rule for target.
+CMakeFiles/MazeGame.dir/all: CMakeFiles/glad.dir/all
 CMakeFiles/MazeGame.dir/all: CMakeFiles/MazeCore.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeGame.dir/build.make CMakeFiles/MazeGame.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeGame.dir/build.make CMakeFiles/MazeGame.dir/build
@@ -125,7 +161,7 @@ CMakeFiles/MazeGame.dir/all: CMakeFiles/MazeCore.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/MazeGame.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 6
+	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/MazeGame.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" 0
 .PHONY : CMakeFiles/MazeGame.dir/rule

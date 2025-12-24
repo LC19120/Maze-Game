@@ -875,4 +875,7 @@ CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/bind_back.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/bind_front.h \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeViewer.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/ThirdPart/Mac/include/glad/glad.h \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/ThirdPart/Mac/include/KHR/khrplatform.h \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/ThirdPart/Mac/include/GFLW/glfw3.h

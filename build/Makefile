@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named glad
+
+# Build rule for target.
+glad: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 glad
+.PHONY : glad
+
+# fast build rule for target.
+glad/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/build
+.PHONY : glad/fast
+
+#=============================================================================
 # Target rules for targets named MazeCore
 
 # Build rule for target.
@@ -141,6 +154,30 @@ MazeGame: cmake_check_build_system
 MazeGame/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeGame.dir/build.make CMakeFiles/MazeGame.dir/build
 .PHONY : MazeGame/fast
+
+ThirdPart/Mac/src/glad.o: ThirdPart/Mac/src/glad.c.o
+.PHONY : ThirdPart/Mac/src/glad.o
+
+# target to build an object file
+ThirdPart/Mac/src/glad.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/ThirdPart/Mac/src/glad.c.o
+.PHONY : ThirdPart/Mac/src/glad.c.o
+
+ThirdPart/Mac/src/glad.i: ThirdPart/Mac/src/glad.c.i
+.PHONY : ThirdPart/Mac/src/glad.i
+
+# target to preprocess a source file
+ThirdPart/Mac/src/glad.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/ThirdPart/Mac/src/glad.c.i
+.PHONY : ThirdPart/Mac/src/glad.c.i
+
+ThirdPart/Mac/src/glad.s: ThirdPart/Mac/src/glad.c.s
+.PHONY : ThirdPart/Mac/src/glad.s
+
+# target to generate assembly for a file
+ThirdPart/Mac/src/glad.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/ThirdPart/Mac/src/glad.c.s
+.PHONY : ThirdPart/Mac/src/glad.c.s
 
 src/core/MazeBuilder.o: src/core/MazeBuilder.cpp.o
 .PHONY : src/core/MazeBuilder.o
@@ -248,6 +285,10 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... MazeCore"
 	@echo "... MazeGame"
+	@echo "... glad"
+	@echo "... ThirdPart/Mac/src/glad.o"
+	@echo "... ThirdPart/Mac/src/glad.i"
+	@echo "... ThirdPart/Mac/src/glad.s"
 	@echo "... src/core/MazeBuilder.o"
 	@echo "... src/core/MazeBuilder.i"
 	@echo "... src/core/MazeBuilder.s"
