@@ -1,3 +1,4 @@
+/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles/MazeCore.dir
 /Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles/MazeGame.dir
 /Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles/edit_cache.dir
 /Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeBuilder.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeBuilder.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/PathFinder.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/PathFinder.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeViewer.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeViewer.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeGame.dir/src/main.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/main.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/main.cpp",
+  "output": "CMakeFiles/MazeGame.dir/src/main.cpp.o"
+}
+]

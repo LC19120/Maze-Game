@@ -1,5 +1,5 @@
-CMakeFiles/MazeGame.dir/src/main.cpp.o: \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/main.cpp \
+CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o: \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/core/MazeViewer.cpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/vector \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__config \
@@ -874,5 +874,5 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/perfect_forward.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/bind_back.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/bind_front.h \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeViewer.hpp
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeViewer.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp

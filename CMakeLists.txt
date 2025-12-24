@@ -10,15 +10,26 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(SOURCES
-    src/main.cpp
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Core library (MazeBuilder/PathFinder/MazeViewer)
+add_library(MazeCore
     src/core/MazeBuilder.cpp
     src/core/PathFinder.cpp
+    src/core/MazeViewer.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
-
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
+target_include_directories(MazeCore
+    PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+# App
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        MazeCore
 )

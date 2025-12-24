@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named MazeCore
+
+# Build rule for target.
+MazeCore: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MazeCore
+.PHONY : MazeCore
+
+# fast build rule for target.
+MazeCore/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/build
+.PHONY : MazeCore/fast
+
+#=============================================================================
 # Target rules for targets named MazeGame
 
 # Build rule for target.
@@ -128,6 +141,78 @@ MazeGame: cmake_check_build_system
 MazeGame/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeGame.dir/build.make CMakeFiles/MazeGame.dir/build
 .PHONY : MazeGame/fast
+
+src/core/MazeBuilder.o: src/core/MazeBuilder.cpp.o
+.PHONY : src/core/MazeBuilder.o
+
+# target to build an object file
+src/core/MazeBuilder.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o
+.PHONY : src/core/MazeBuilder.cpp.o
+
+src/core/MazeBuilder.i: src/core/MazeBuilder.cpp.i
+.PHONY : src/core/MazeBuilder.i
+
+# target to preprocess a source file
+src/core/MazeBuilder.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.i
+.PHONY : src/core/MazeBuilder.cpp.i
+
+src/core/MazeBuilder.s: src/core/MazeBuilder.cpp.s
+.PHONY : src/core/MazeBuilder.s
+
+# target to generate assembly for a file
+src/core/MazeBuilder.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.s
+.PHONY : src/core/MazeBuilder.cpp.s
+
+src/core/MazeViewer.o: src/core/MazeViewer.cpp.o
+.PHONY : src/core/MazeViewer.o
+
+# target to build an object file
+src/core/MazeViewer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o
+.PHONY : src/core/MazeViewer.cpp.o
+
+src/core/MazeViewer.i: src/core/MazeViewer.cpp.i
+.PHONY : src/core/MazeViewer.i
+
+# target to preprocess a source file
+src/core/MazeViewer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.i
+.PHONY : src/core/MazeViewer.cpp.i
+
+src/core/MazeViewer.s: src/core/MazeViewer.cpp.s
+.PHONY : src/core/MazeViewer.s
+
+# target to generate assembly for a file
+src/core/MazeViewer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.s
+.PHONY : src/core/MazeViewer.cpp.s
+
+src/core/PathFinder.o: src/core/PathFinder.cpp.o
+.PHONY : src/core/PathFinder.o
+
+# target to build an object file
+src/core/PathFinder.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o
+.PHONY : src/core/PathFinder.cpp.o
+
+src/core/PathFinder.i: src/core/PathFinder.cpp.i
+.PHONY : src/core/PathFinder.i
+
+# target to preprocess a source file
+src/core/PathFinder.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.i
+.PHONY : src/core/PathFinder.cpp.i
+
+src/core/PathFinder.s: src/core/PathFinder.cpp.s
+.PHONY : src/core/PathFinder.s
+
+# target to generate assembly for a file
+src/core/PathFinder.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.s
+.PHONY : src/core/PathFinder.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -161,7 +246,17 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... MazeCore"
 	@echo "... MazeGame"
+	@echo "... src/core/MazeBuilder.o"
+	@echo "... src/core/MazeBuilder.i"
+	@echo "... src/core/MazeBuilder.s"
+	@echo "... src/core/MazeViewer.o"
+	@echo "... src/core/MazeViewer.i"
+	@echo "... src/core/MazeViewer.s"
+	@echo "... src/core/PathFinder.o"
+	@echo "... src/core/PathFinder.i"
+	@echo "... src/core/PathFinder.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
