@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 project(MazeGame
     VERSION 1.0 
-    DESCRIPTION "Modern C++23 Maze Solver with Multi-threading"
+    DESCRIPTION "Maze Game"
     LANGUAGES CXX
 )
 
