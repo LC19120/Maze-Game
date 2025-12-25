@@ -100,24 +100,80 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/PathFinder.cpp" -o CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.s
 
-CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o: CMakeFiles/MazeCore.dir/flags.make
-CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/core/MazeViewer.cpp
-CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o -MF CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o.d -o CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeViewer.cpp"
+CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o: CMakeFiles/MazeCore.dir/flags.make
+CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/core.cpp
+CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o -MF CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o.d -o CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/core.cpp"
 
-CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeViewer.cpp" > CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.i
+CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/core.cpp" > CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.i
 
-CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeViewer.cpp" -o CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.s
+CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/core.cpp" -o CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.s
+
+CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o: CMakeFiles/MazeCore.dir/flags.make
+CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/window_gl.cpp
+CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o -MF CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o.d -o CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/window_gl.cpp"
+
+CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/window_gl.cpp" > CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.i
+
+CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/window_gl.cpp" -o CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.s
+
+CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o: CMakeFiles/MazeCore.dir/flags.make
+CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/input.cpp
+CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o -MF CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o.d -o CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/input.cpp"
+
+CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/input.cpp" > CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.i
+
+CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/input.cpp" -o CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.s
+
+CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o: CMakeFiles/MazeCore.dir/flags.make
+CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/ui.cpp
+CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o -MF CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o.d -o CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/ui.cpp"
+
+CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/ui.cpp" > CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.i
+
+CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/ui.cpp" -o CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.s
+
+CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o: CMakeFiles/MazeCore.dir/flags.make
+CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/maze_render.cpp
+CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o -MF CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o.d -o CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/maze_render.cpp"
+
+CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/maze_render.cpp" > CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.i
+
+CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/maze_render.cpp" -o CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.s
 
 CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o: CMakeFiles/MazeCore.dir/flags.make
 CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Thread/ThreadPool.cpp
 CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o -MF CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o.d -o CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Thread/ThreadPool.cpp"
 
 CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.i: cmake_force
@@ -131,7 +187,7 @@ CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.s: cmake_force
 CMakeFiles/MazeCore.dir/src/app.cpp.o: CMakeFiles/MazeCore.dir/flags.make
 CMakeFiles/MazeCore.dir/src/app.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp
 CMakeFiles/MazeCore.dir/src/app.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/MazeCore.dir/src/app.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MazeCore.dir/src/app.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/app.cpp.o -MF CMakeFiles/MazeCore.dir/src/app.cpp.o.d -o CMakeFiles/MazeCore.dir/src/app.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/app.cpp"
 
 CMakeFiles/MazeCore.dir/src/app.cpp.i: cmake_force
@@ -145,7 +201,7 @@ CMakeFiles/MazeCore.dir/src/app.cpp.s: cmake_force
 CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o: CMakeFiles/MazeCore.dir/flags.make
 CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Exploer/Exploer.cpp
 CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o: CMakeFiles/MazeCore.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o -MF CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o.d -o CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o -c "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Exploer/Exploer.cpp"
 
 CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.i: cmake_force
@@ -160,7 +216,11 @@ CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.s: cmake_force
 MazeCore_OBJECTS = \
 "CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o" \
 "CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o" \
-"CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o" \
+"CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o" \
+"CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o" \
+"CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o" \
+"CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o" \
+"CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o" \
 "CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o" \
 "CMakeFiles/MazeCore.dir/src/app.cpp.o" \
 "CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o"
@@ -170,13 +230,17 @@ MazeCore_EXTERNAL_OBJECTS =
 
 libMazeCore.a: CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o
 libMazeCore.a: CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o
-libMazeCore.a: CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o
+libMazeCore.a: CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o
+libMazeCore.a: CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o
+libMazeCore.a: CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o
+libMazeCore.a: CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o
+libMazeCore.a: CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o
 libMazeCore.a: CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.o
 libMazeCore.a: CMakeFiles/MazeCore.dir/src/app.cpp.o
 libMazeCore.a: CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o
 libMazeCore.a: CMakeFiles/MazeCore.dir/build.make
 libMazeCore.a: CMakeFiles/MazeCore.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX static library libMazeCore.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/butcher/Desktop/Maze Game/Maze-Game/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX static library libMazeCore.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/MazeCore.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MazeCore.dir/link.txt --verbose=$(VERBOSE)
 

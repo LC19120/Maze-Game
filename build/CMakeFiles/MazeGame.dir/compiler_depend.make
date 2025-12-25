@@ -1065,9 +1065,9 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wchar.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wctype.h \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Thread/ThreadPool.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeViewer.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp
 
@@ -1075,6 +1075,8 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp:
 
 /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp:
+
+/Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp:
 
 /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Thread/ThreadPool.hpp:
 
@@ -2219,8 +2221,6 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tuple/ignore.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/steady_clock.h:
-
-/Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeViewer.hpp:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/statically_widen.h:
 

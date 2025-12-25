@@ -909,7 +909,7 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/unordered_set \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeViewer.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Thread/ThreadPool.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/algorithm \

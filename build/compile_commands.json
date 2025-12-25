@@ -19,9 +19,33 @@
 },
 {
   "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
-  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem \"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeViewer.cpp\"",
-  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/core/MazeViewer.cpp",
-  "output": "CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o"
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem \"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/core.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/core.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem \"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/window_gl.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/window_gl.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem \"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/input.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/input.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem \"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/ui.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/ui.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o"
+},
+{
+  "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",
+  "command": "/usr/bin/c++  -I\"/Users/butcher/Desktop/Maze Game/Maze-Game/include\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem \"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include\" -std=c++2b -arch arm64 -o CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o -c \"/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/maze_render.cpp\"",
+  "file": "/Users/butcher/Desktop/Maze Game/Maze-Game/src/Viewer/maze_render.cpp",
+  "output": "CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o"
 },
 {
   "directory": "/Users/butcher/Desktop/Maze Game/Maze-Game/build",

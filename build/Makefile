@@ -227,6 +227,126 @@ src/Thread/ThreadPool.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Thread/ThreadPool.cpp.s
 .PHONY : src/Thread/ThreadPool.cpp.s
 
+src/Viewer/core.o: src/Viewer/core.cpp.o
+.PHONY : src/Viewer/core.o
+
+# target to build an object file
+src/Viewer/core.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o
+.PHONY : src/Viewer/core.cpp.o
+
+src/Viewer/core.i: src/Viewer/core.cpp.i
+.PHONY : src/Viewer/core.i
+
+# target to preprocess a source file
+src/Viewer/core.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.i
+.PHONY : src/Viewer/core.cpp.i
+
+src/Viewer/core.s: src/Viewer/core.cpp.s
+.PHONY : src/Viewer/core.s
+
+# target to generate assembly for a file
+src/Viewer/core.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.s
+.PHONY : src/Viewer/core.cpp.s
+
+src/Viewer/input.o: src/Viewer/input.cpp.o
+.PHONY : src/Viewer/input.o
+
+# target to build an object file
+src/Viewer/input.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o
+.PHONY : src/Viewer/input.cpp.o
+
+src/Viewer/input.i: src/Viewer/input.cpp.i
+.PHONY : src/Viewer/input.i
+
+# target to preprocess a source file
+src/Viewer/input.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.i
+.PHONY : src/Viewer/input.cpp.i
+
+src/Viewer/input.s: src/Viewer/input.cpp.s
+.PHONY : src/Viewer/input.s
+
+# target to generate assembly for a file
+src/Viewer/input.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.s
+.PHONY : src/Viewer/input.cpp.s
+
+src/Viewer/maze_render.o: src/Viewer/maze_render.cpp.o
+.PHONY : src/Viewer/maze_render.o
+
+# target to build an object file
+src/Viewer/maze_render.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o
+.PHONY : src/Viewer/maze_render.cpp.o
+
+src/Viewer/maze_render.i: src/Viewer/maze_render.cpp.i
+.PHONY : src/Viewer/maze_render.i
+
+# target to preprocess a source file
+src/Viewer/maze_render.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.i
+.PHONY : src/Viewer/maze_render.cpp.i
+
+src/Viewer/maze_render.s: src/Viewer/maze_render.cpp.s
+.PHONY : src/Viewer/maze_render.s
+
+# target to generate assembly for a file
+src/Viewer/maze_render.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.s
+.PHONY : src/Viewer/maze_render.cpp.s
+
+src/Viewer/ui.o: src/Viewer/ui.cpp.o
+.PHONY : src/Viewer/ui.o
+
+# target to build an object file
+src/Viewer/ui.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o
+.PHONY : src/Viewer/ui.cpp.o
+
+src/Viewer/ui.i: src/Viewer/ui.cpp.i
+.PHONY : src/Viewer/ui.i
+
+# target to preprocess a source file
+src/Viewer/ui.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.i
+.PHONY : src/Viewer/ui.cpp.i
+
+src/Viewer/ui.s: src/Viewer/ui.cpp.s
+.PHONY : src/Viewer/ui.s
+
+# target to generate assembly for a file
+src/Viewer/ui.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.s
+.PHONY : src/Viewer/ui.cpp.s
+
+src/Viewer/window_gl.o: src/Viewer/window_gl.cpp.o
+.PHONY : src/Viewer/window_gl.o
+
+# target to build an object file
+src/Viewer/window_gl.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o
+.PHONY : src/Viewer/window_gl.cpp.o
+
+src/Viewer/window_gl.i: src/Viewer/window_gl.cpp.i
+.PHONY : src/Viewer/window_gl.i
+
+# target to preprocess a source file
+src/Viewer/window_gl.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.i
+.PHONY : src/Viewer/window_gl.cpp.i
+
+src/Viewer/window_gl.s: src/Viewer/window_gl.cpp.s
+.PHONY : src/Viewer/window_gl.s
+
+# target to generate assembly for a file
+src/Viewer/window_gl.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.s
+.PHONY : src/Viewer/window_gl.cpp.s
+
 src/app.o: src/app.cpp.o
 .PHONY : src/app.o
 
@@ -274,30 +394,6 @@ src/core/MazeBuilder.s: src/core/MazeBuilder.cpp.s
 src/core/MazeBuilder.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.s
 .PHONY : src/core/MazeBuilder.cpp.s
-
-src/core/MazeViewer.o: src/core/MazeViewer.cpp.o
-.PHONY : src/core/MazeViewer.o
-
-# target to build an object file
-src/core/MazeViewer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.o
-.PHONY : src/core/MazeViewer.cpp.o
-
-src/core/MazeViewer.i: src/core/MazeViewer.cpp.i
-.PHONY : src/core/MazeViewer.i
-
-# target to preprocess a source file
-src/core/MazeViewer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.i
-.PHONY : src/core/MazeViewer.cpp.i
-
-src/core/MazeViewer.s: src/core/MazeViewer.cpp.s
-.PHONY : src/core/MazeViewer.s
-
-# target to generate assembly for a file
-src/core/MazeViewer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/core/MazeViewer.cpp.s
-.PHONY : src/core/MazeViewer.cpp.s
 
 src/core/PathFinder.o: src/core/PathFinder.cpp.o
 .PHONY : src/core/PathFinder.o
@@ -367,15 +463,27 @@ help:
 	@echo "... src/Thread/ThreadPool.o"
 	@echo "... src/Thread/ThreadPool.i"
 	@echo "... src/Thread/ThreadPool.s"
+	@echo "... src/Viewer/core.o"
+	@echo "... src/Viewer/core.i"
+	@echo "... src/Viewer/core.s"
+	@echo "... src/Viewer/input.o"
+	@echo "... src/Viewer/input.i"
+	@echo "... src/Viewer/input.s"
+	@echo "... src/Viewer/maze_render.o"
+	@echo "... src/Viewer/maze_render.i"
+	@echo "... src/Viewer/maze_render.s"
+	@echo "... src/Viewer/ui.o"
+	@echo "... src/Viewer/ui.i"
+	@echo "... src/Viewer/ui.s"
+	@echo "... src/Viewer/window_gl.o"
+	@echo "... src/Viewer/window_gl.i"
+	@echo "... src/Viewer/window_gl.s"
 	@echo "... src/app.o"
 	@echo "... src/app.i"
 	@echo "... src/app.s"
 	@echo "... src/core/MazeBuilder.o"
 	@echo "... src/core/MazeBuilder.i"
 	@echo "... src/core/MazeBuilder.s"
-	@echo "... src/core/MazeViewer.o"
-	@echo "... src/core/MazeViewer.i"
-	@echo "... src/core/MazeViewer.s"
 	@echo "... src/core/PathFinder.o"
 	@echo "... src/core/PathFinder.i"
 	@echo "... src/core/PathFinder.s"

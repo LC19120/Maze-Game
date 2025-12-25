@@ -94,4 +94,8 @@ private:
 
     int fbW_{900};
     int fbH_{900};
+
+    // +++ add: split maze draw out of core.cpp
+    void drawMaze_();
+    // --- add
 };

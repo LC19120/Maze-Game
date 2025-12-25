@@ -1,6 +1,6 @@
 #include "core/Common.hpp"
 #include "core/MazeBuilder.hpp"
-#include "core/MazeViewer.hpp"
+#include "Viewer/core.hpp"
 #include "core/PathFinder.hpp"
 #include "Thread/ThreadPool.hpp"
 
