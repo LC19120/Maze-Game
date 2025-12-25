@@ -46,6 +46,7 @@ add_library(MazeCore
     src/core/MazeViewer.cpp
     src/Thread/ThreadPool.cpp
     src/app.cpp
+    src/Exploer/Exploer.cpp
 )
 
 target_include_directories(MazeCore
@@ -57,6 +58,11 @@ target_include_directories(MazeCore
 target_link_libraries(MazeCore
     PUBLIC
         glad
+        glfw
+        "${FW_COCOA}"
+        "${FW_IOKIT}"
+        "${FW_COREVIDEO}"
+        "${FW_OPENGL}"
 )
 
 # -----------------------------
@@ -69,9 +75,4 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         MazeCore
-        glfw
-        "${FW_COCOA}"
-        "${FW_IOKIT}"
-        "${FW_COREVIDEO}"
-        "${FW_OPENGL}"
 )

@@ -179,6 +179,30 @@ ThirdPart/Mac/src/glad.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/glad.dir/build.make CMakeFiles/glad.dir/ThirdPart/Mac/src/glad.c.s
 .PHONY : ThirdPart/Mac/src/glad.c.s
 
+src/Exploer/Exploer.o: src/Exploer/Exploer.cpp.o
+.PHONY : src/Exploer/Exploer.o
+
+# target to build an object file
+src/Exploer/Exploer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.o
+.PHONY : src/Exploer/Exploer.cpp.o
+
+src/Exploer/Exploer.i: src/Exploer/Exploer.cpp.i
+.PHONY : src/Exploer/Exploer.i
+
+# target to preprocess a source file
+src/Exploer/Exploer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.i
+.PHONY : src/Exploer/Exploer.cpp.i
+
+src/Exploer/Exploer.s: src/Exploer/Exploer.cpp.s
+.PHONY : src/Exploer/Exploer.s
+
+# target to generate assembly for a file
+src/Exploer/Exploer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MazeCore.dir/build.make CMakeFiles/MazeCore.dir/src/Exploer/Exploer.cpp.s
+.PHONY : src/Exploer/Exploer.cpp.s
+
 src/Thread/ThreadPool.o: src/Thread/ThreadPool.cpp.o
 .PHONY : src/Thread/ThreadPool.o
 
@@ -337,6 +361,9 @@ help:
 	@echo "... ThirdPart/Mac/src/glad.o"
 	@echo "... ThirdPart/Mac/src/glad.i"
 	@echo "... ThirdPart/Mac/src/glad.s"
+	@echo "... src/Exploer/Exploer.o"
+	@echo "... src/Exploer/Exploer.i"
+	@echo "... src/Exploer/Exploer.s"
 	@echo "... src/Thread/ThreadPool.o"
 	@echo "... src/Thread/ThreadPool.i"
 	@echo "... src/Thread/ThreadPool.s"

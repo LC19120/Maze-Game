@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I"/Users/butcher/Desktop/Maze Game/Maze-Game/include" -I"/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include"
+CXX_INCLUDES = -I"/Users/butcher/Desktop/Maze Game/Maze-Game/include" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem "/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include"
 
 CXX_FLAGSarm64 = -std=c++2b -arch arm64
 
