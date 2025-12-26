@@ -18,14 +18,13 @@ static bool InBounds_(int32_t x, int32_t y, uint32_t w, uint32_t h)
 
 static std::unique_ptr<Exploer> MakeExploer_(PathFinder::PathAlgo algo, const Maze& maze, std::string& outError)
 {
-    auto floydAllowed = [&]() {
-        return maze.type == MazeType::Medium;
-    };
+    auto floydAllowed = [&]() { return maze.type == MazeType::Medium; };
 
     switch (algo)
     {
     case PathFinder::PathAlgo::DFS:      return std::make_unique<DFSExploer>(maze);
     case PathFinder::PathAlgo::BFS:      return std::make_unique<BFSExploer>(maze);
+    case PathFinder::PathAlgo::BFSPlus:  return std::make_unique<BFSPlusExploer>(maze); // +++ NEW
     case PathFinder::PathAlgo::Dijkstra: return std::make_unique<DijkstraExploer>(maze);
     case PathFinder::PathAlgo::AStar:    return std::make_unique<AStarExploer>(maze);
     case PathFinder::PathAlgo::Floyd:
@@ -49,12 +48,13 @@ bool PathFinder::FindPath(
     std::atomic<bool>* cancel,
     uint32_t updateEvery,
     std::chrono::milliseconds delay,
-    std::array<int, 5>* outAllLens,
-    std::array<std::vector<std::pair<int32_t,int32_t>>, 5>* outAllPaths,
-    std::array<int, 5>* outAllVisited,
+    std::array<int, 6>* outAllLens,
+    std::array<std::vector<std::pair<int32_t,int32_t>>, 6>* outAllPaths,
+    std::array<int, 6>* outAllVisited,
     int* outVisited,
-    std::array<int, 5>* outAllFoundAt,
-    int* outFoundAt)
+    std::array<int, 6>* outAllFoundAt,
+    int* outFoundAt,
+    const Maze* renderStartMaze)
 {
     outSteps.clear();
     outError.clear();
@@ -74,80 +74,110 @@ bool PathFinder::FindPath(
     auto exploer = MakeExploer_(runAlgo, maze, outError);
     if (!exploer) return false;
 
+    // +++ FIX: pass start/end/cancel into exploer
     exploer->cancel = cancel;
-    exploer->StartPoint = {(uint32_t)start.first, (uint32_t)start.second, 0u, 0.0f};
-    exploer->EndPoint   = {(uint32_t)end.first,   (uint32_t)end.second,   0u, 0.0f};
+    exploer->StartPoint = {
+        (uint32_t)start.first,
+        (uint32_t)start.second,
+        0u,
+        0.0f
+    };
+    exploer->EndPoint = {
+        (uint32_t)end.first,
+        (uint32_t)end.second,
+        0u,
+        0.0f
+    };
     exploer->state = State::START;
+    exploer->timeStep = 0;
+    exploer->way.clear();
+    exploer->path.clear();
+    exploer->found = false;
+    exploer->error.clear();
+    // --- FIX
 
-    // color code must match BUTTON (requested algo), not fallback algo
+    // color code must match BUTTON
     auto codeFor = [&](PathAlgo a) -> uint8_t
     {
         switch (a)
         {
         case PathAlgo::DFS:      return 2;
         case PathAlgo::BFS:      return 3;
+        case PathAlgo::BFSPlus:  return 7;
         case PathAlgo::Dijkstra: return 4;
         case PathAlgo::AStar:    return 5;
         case PathAlgo::Floyd:    return 6;
         default:                 return 2;
         }
     };
+    auto exploreCodeFor = [&](PathAlgo a) -> uint8_t { return (uint8_t)(codeFor(a) + 10); }; // 12..17
 
-    // +++ NEW: desaturated "visited" color code
-    auto exploreCodeFor = [&](PathAlgo a) -> uint8_t
-    {
-        // 12..16 correspond to DFS..FLOYD visited tint
-        return (uint8_t)(codeFor(a) + 10);
-    };
-    // --- NEW
+    constexpr uint8_t kBfsPlusWallPathCode = 27; // +++ NEW: wall cell with 50% overlay square
 
-    Maze anim = maze;
+    Maze anim = (renderStartMaze ? *renderStartMaze : maze);
 
-    // "first come wins" OR "overwrite" depending on mode
     auto paintExplore = [&](uint32_t x, uint32_t y, uint8_t exploreCode, bool overwrite)
     {
         if (y >= anim.grid.size() || x >= anim.grid[y].size()) return;
-        if (anim.grid[y][x] == 1) return; // wall
 
-        if (overwrite)
-        {
-            // single algo: always overwrite so visited tint is visible even on existing colored cells
-            anim.grid[y][x] = exploreCode;
-        }
-        else
-        {
-            // ALL: keep first-come wins to avoid destroying other algos' colors
-            if (anim.grid[y][x] == 0) anim.grid[y][x] = exploreCode;
-        }
+        // +++ IMPORTANT: NEVER paint walls during explore (including BFS+)
+        if (maze.grid[y][x] == 1) return;
+        // --- IMPORTANT
+
+        if (overwrite) anim.grid[y][x] = exploreCode;
+        else { if (anim.grid[y][x] == 0) anim.grid[y][x] = exploreCode; }
     };
 
-    // path painting (NOT bitmask): write color codes 2..6
-    auto paintPathOverwrite = [&](const std::vector<PointInfo>& p, uint8_t code)
+    auto paintPathOverwriteNormal = [&](const std::vector<PointInfo>& p, uint8_t code)
     {
         for (const auto& pt : p)
         {
             if (pt.y >= anim.grid.size() || pt.x >= anim.grid[pt.y].size()) continue;
-            if (anim.grid[pt.y][pt.x] == 1) continue;
-            anim.grid[pt.y][pt.x] = code; // overwrite for clarity (single algo)
+            if (maze.grid[pt.y][pt.x] == 1) continue; // normal algos never draw on walls
+            anim.grid[pt.y][pt.x] = code;
         }
     };
 
-    auto paintPathFirstCome = [&](const std::vector<PointInfo>& p, uint8_t code)
+    // +++ BFS+: draw path; on open cells => full cell color; on wall cells => special 27 (render as 50% square on wall)
+    auto paintPathOverwriteBfsPlus = [&](const std::vector<PointInfo>& p)
     {
         for (const auto& pt : p)
         {
             if (pt.y >= anim.grid.size() || pt.x >= anim.grid[pt.y].size()) continue;
-            if (anim.grid[pt.y][pt.x] == 1) continue;
+
+            if (maze.grid[pt.y][pt.x] == 1) anim.grid[pt.y][pt.x] = kBfsPlusWallPathCode;
+            else                            anim.grid[pt.y][pt.x] = codeFor(PathAlgo::BFSPlus);
+        }
+    };
+    // --- BFS+
+
+    auto paintPathFirstCome = [&](const std::vector<PointInfo>& p, PathAlgo algo)
+    {
+        const uint8_t code = codeFor(algo);
+
+        for (const auto& pt : p)
+        {
+            if (pt.y >= anim.grid.size() || pt.x >= anim.grid[pt.y].size()) continue;
+
+            // BFS+ special: allow painting wall-overlay cells (27) but don't overwrite other final paths
+            if (algo == PathAlgo::BFSPlus && maze.grid[pt.y][pt.x] == 1)
+            {
+                const uint8_t cur = anim.grid[pt.y][pt.x];
+                const bool emptyOrVisited = (cur == 0) || (cur >= 12 && cur <= 17);
+                if (emptyOrVisited) anim.grid[pt.y][pt.x] = kBfsPlusWallPathCode;
+                continue;
+            }
+
+            // others: don't touch walls
+            if (maze.grid[pt.y][pt.x] == 1) continue;
 
             const uint8_t cur = anim.grid[pt.y][pt.x];
-
-            // allow overwriting "visited tint" (12..16), but don't overwrite other final paths (2..6)
-            const bool emptyOrVisited = (cur == 0) || (cur >= 12 && cur <= 16);
+            const bool emptyOrVisited = (cur == 0) || (cur >= 12 && cur <= 17);
             if (emptyOrVisited) anim.grid[pt.y][pt.x] = code;
         }
     };
 
-    std::array<size_t, 5> paintedAllEach{{0,0,0,0,0}};
+    std::array<size_t, 6> paintedAllEach{{0,0,0,0,0,0}};
     size_t paintedSingle = 0;
     size_t paintedTotalAll = 0;
 
@@ -155,7 +185,7 @@ bool PathFinder::FindPath(
     uint32_t guard = 0;
 
     int foundAtSingle = -1;
-    std::array<int, 5> foundAtAll;
+    std::array<int, 6> foundAtAll;
     foundAtAll.fill(-1);
 
     while (exploer->state != State::END)
@@ -176,7 +206,7 @@ bool PathFinder::FindPath(
             auto* all = dynamic_cast<AllExploer*>(exploer.get());
             if (all)
             {
-                for (int ai = 0; ai < 5; ++ai)
+                for (int ai = 0; ai < 6; ++ai)
                 {
                     auto* a = all->algos_[(size_t)ai].get();
                     if (!a) continue;
@@ -210,12 +240,13 @@ bool PathFinder::FindPath(
             auto* all = dynamic_cast<AllExploer*>(exploer.get());
             if (!all) { outError = "ALL: exploer type mismatch."; return false; }
 
-            for (int ai = 0; ai < 5; ++ai)
+            for (int ai = 0; ai < 6; ++ai)
             {
                 auto* a = all->algos_[(size_t)ai].get();
                 if (!a) continue;
 
-                const uint8_t exploreCode = (uint8_t)(2 + ai + 10); // 12..16
+                const auto algo = (PathAlgo)ai;               // 0..5 matches enum
+                const uint8_t exploreCode = exploreCodeFor(algo);
 
                 if (a->way.size() > paintedAllEach[(size_t)ai])
                 {
@@ -235,35 +266,42 @@ bool PathFinder::FindPath(
         }
     }
 
-    // paint final paths (button colors)
+    // ---- paint final paths
     if (runAlgo != PathAlgo::All)
     {
-        paintPathOverwrite(exploer->path, codeFor(requestedAlgo)); // 2..6
+        if (requestedAlgo == PathAlgo::BFSPlus) paintPathOverwriteBfsPlus(exploer->path);
+        else paintPathOverwriteNormal(exploer->path, codeFor(requestedAlgo));
     }
     else
     {
         auto* all = dynamic_cast<AllExploer*>(exploer.get());
         if (all)
         {
-            for (int ai = 0; ai < 5; ++ai)
+            for (int ai = 0; ai < 6; ++ai)
             {
                 auto* a = all->algos_[(size_t)ai].get();
-                if (!a) continue;
-                if (a->found && !a->path.empty())
-                    paintPathFirstCome(a->path, (uint8_t)(2 + ai)); // 2..6
+                if (!a || !a->found || a->path.empty()) continue;
+
+                const auto algo = (PathAlgo)ai;
+                if (algo == PathAlgo::BFSPlus)
+                {
+                    // BFS+ in ALL: prefer first-come for open cells, but wall-cells become 27 overlays
+                    paintPathFirstCome(a->path, PathAlgo::BFSPlus);
+                }
+                else
+                {
+                    paintPathFirstCome(a->path, algo);
+                }
             }
         }
     }
 
     if (onStep) onStep(anim);
 
-    // +++ visited output
+    // visited output
     if (outVisited) *outVisited = (int)exploer->way.size();
     if (outFoundAt) *outFoundAt = foundAtSingle;
-
-    if (requestedAlgo == PathAlgo::All && outAllFoundAt)
-        *outAllFoundAt = foundAtAll;
-    // --- visited output
+    if (requestedAlgo == PathAlgo::All && outAllFoundAt) *outAllFoundAt = foundAtAll;
 
     // fill per-algo lens + paths (+ visited) when ALL requested
     if (requestedAlgo == PathAlgo::All)
@@ -276,7 +314,7 @@ bool PathFinder::FindPath(
 
         if (all)
         {
-            for (int ai = 0; ai < 5; ++ai)
+            for (int ai = 0; ai < 6; ++ai)
             {
                 auto* a = all->algos_[(size_t)ai].get();
                 if (!a) continue;

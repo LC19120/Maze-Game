@@ -148,8 +148,20 @@ void MazeViewer::initUiCallbacks_()
         if (winW <= 0) winW = 1;
         if (winH <= 0) winH = 1;
 
-        const float mx = (float)((px / (double)winW) * 2.0 - 1.0);
-        const float my = (float)(1.0 - (py / (double)winH) * 2.0);
+        int fbW = 1, fbH = 1;
+        glfwGetFramebufferSize(w, &fbW, &fbH);
+        if (fbW <= 0) fbW = 1;
+        if (fbH <= 0) fbH = 1;
+
+        // convert cursor pos (window coords) -> framebuffer coords
+        const double sx = (double)fbW / (double)winW;
+        const double sy = (double)fbH / (double)winH;
+        const double fpx = px * sx;
+        const double fpy = py * sy;
+
+        // framebuffer coords -> NDC
+        const float mx = (float)((fpx / (double)fbW) * 2.0 - 1.0);
+        const float my = (float)(1.0 - (fpy / (double)fbH) * 2.0);
 
         // ---- match ui.cpp layout
         const float panelX0 = -1.0f;
@@ -203,17 +215,17 @@ void MazeViewer::initUiCallbacks_()
             return;
         }
 
-        // Bottom: 6 algorithm buttons (match ui.cpp)
+        // Bottom: 7 algorithm buttons (match ui.cpp)
         struct AlgoBtn { const char* label; };
-        const AlgoBtn algos[6] = {
-            {"DFS"}, {"BFS"}, {"DIJKSTRA"}, {"A*"}, {"FLOYD"}, {"ALL"}
+        const AlgoBtn algos[7] = {
+            {"DFS"}, {"BFS"}, {"BFS+"}, {"DIJKSTRA"}, {"A*"}, {"FLOYD"}, {"ALL"}
         };
 
         const float btnH = 0.11f;
         const float btnGap = 0.018f;
         const float bottomY0 = panelY0 + padY;
 
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < 7; ++i) // was 6
         {
             const float y0 = bottomY0 + i * (btnH + btnGap);
             const float y1 = y0 + btnH;
@@ -221,17 +233,15 @@ void MazeViewer::initUiCallbacks_()
             if (!Hit_(mx, my, contentX0, y0, contentX1, y1))
                 continue;
 
-            // clear edit focus on click
             self->uiFocus_ = UiField::None;
             self->uiEdit_.clear();
 
-            // snapshot maze to get default start/end
             Maze snapshot{};
             {
                 std::lock_guard<std::mutex> lk(self->latestMazeMutex_);
                 if (!self->hasMaze_) {
                     std::lock_guard<std::mutex> lk2(self->uiMsgMutex_);
-                    self->uiLastMsg_ = "No maze yet. Click a size to build first.";
+                    self->uiLastMsg_ = "No maze yet. Click BUILD first.";
                     return;
                 }
                 snapshot = self->latestMaze_;

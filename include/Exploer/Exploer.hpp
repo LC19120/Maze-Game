@@ -75,6 +75,20 @@ public:
     void update() override;
 };
 
+// BFS+
+class BFSPlusExploer : public Exploer
+{
+private:
+    struct SNode { uint32_t x, y; uint8_t b; uint32_t step; };
+    std::queue<SNode> q;
+    std::unordered_set<uint32_t> visited;
+    std::unordered_map<uint32_t, uint32_t> parent;
+
+public:
+    BFSPlusExploer(Maze maze);
+    void update() override;
+};
+
 // +++ add: Dijkstra
 class DijkstraExploer : public Exploer
 {
@@ -125,8 +139,8 @@ public:
 class AllExploer : public Exploer
 {
 public:
-    // 0..4 => DFS,BFS,DIJKSTRA,A*,FLOYD
-    std::array<std::unique_ptr<Exploer>, 5> algos_{};
+    // 0..5 => DFS,BFS,BFS+,DIJKSTRA,A*,FLOYD
+    std::array<std::unique_ptr<Exploer>, 6> algos_{}; // was 5
 
     AllExploer(Maze maze);
     void update() override;

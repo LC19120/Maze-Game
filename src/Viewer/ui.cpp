@@ -147,6 +147,15 @@ namespace
         case 'Z': return {0b11111,0b00001,0b00010,0b00100,0b01000,0b10000,0b11111};
 
         case '*': return {0b00100,0b10101,0b01110,0b11111,0b01110,0b10101,0b00100};
+        case '+': return {
+            0b00000,
+            0b00100,
+            0b00100,
+            0b11111,
+            0b00100,
+            0b00100,
+            0b00000
+        };
         default:  return {0,0,0,0,0,0,0};
         }
     }
@@ -273,24 +282,26 @@ void MazeViewer::renderUi_()
               (contentX1 - contentX0) - 0.04f, (seedY1 - seedY0) - 0.04f,
               0.92f, 0.92f, 0.92f);
 
-    // ---- Bottom: 6 algorithm buttons
+    // ---- Bottom: 7 algorithm buttons
     struct AlgoBtn { const char* label; float r,g,b; };
 
-    const AlgoBtn algos[6] = {
-        {"DFS",      0.20f, 0.70f, 0.25f},
-        {"BFS",      0.20f, 0.55f, 0.95f},
-        {"DIJKSTRA", 0.85f, 0.65f, 0.20f},
-        {"A*",       0.70f, 0.35f, 0.90f},
-        {"FLOYD",    0.20f, 0.75f, 0.75f},
+    // Rainbow colors: Red, Orange, Yellow, Green, Blue, Violet
+    const AlgoBtn algos[7] = {
+        {"DFS",      0.95f, 0.20f, 0.20f}, // Red
+        {"BFS",      1.00f, 0.55f, 0.05f}, // Orange
+        {"BFS+",     1.00f, 0.92f, 0.10f}, // Yellow
+        {"DIJKSTRA", 0.20f, 0.85f, 0.25f}, // Green
+        {"A*",       0.20f, 0.55f, 1.00f}, // Blue
+        {"FLOYD",    0.65f, 0.25f, 0.95f}, // Violet
         {"ALL",      0.65f, 0.65f, 0.65f},
     };
 
     const float btnH = 0.11f;
     const float btnGap = 0.018f;
     const float bottomY0 = panelY0 + padY;
-    const float algosTop = bottomY0 + 6.0f * btnH + 5.0f * btnGap;
+    const float algosTop = bottomY0 + 7.0f * btnH + 6.0f * btnGap; // was 6/5
 
-    // +++ DIV: algo min path len area between seed and algo buttons
+    // +++ DIV: algo stats area between seed and algo buttons
     const float statsY0 = algosTop + gap;
     const float statsY1 = seedY0 - gap;
 
@@ -298,13 +309,12 @@ void MazeViewer::renderUi_()
     {
         PushRect_(ui, contentX0, statsY0, contentX1, statsY1, 0.16f, 0.16f, 0.16f);
 
-        // +++ add: row labels for the stats table
-        const char* rows[5] = {"DFS", "BFS", "DIJKSTRA", "A*", "FLOYD"};
-        // --- add
+        // 6 rows (no ALL row)
+        const char* rows[6] = {"DFS", "BFS", "BFS+", "DIJKSTRA", "A*", "FLOYD"};
 
-        std::array<int, 5> lens{};
-        std::array<int, 5> vis{};
-        std::array<int, 5> foundAt{};
+        std::array<int, 6> lens{};
+        std::array<int, 6> vis{};
+        std::array<int, 6> foundAt{};
         {
             std::lock_guard<std::mutex> lk(algoLenMutex_);
             lens = algoPathLen_;
@@ -313,8 +323,8 @@ void MazeViewer::renderUi_()
         }
 
         // rank: smaller foundAt => earlier arrival => better
-        std::array<int, 5> rank{};
-        std::array<int, 5> order{{0,1,2,3,4}};
+        std::array<int, 6> rank{};
+        std::array<int, 6> order{{0,1,2,3,4,5}};
 
         std::sort(order.begin(), order.end(), [&](int a, int b){
             const int fa = foundAt[(size_t)a];
@@ -322,22 +332,21 @@ void MazeViewer::renderUi_()
 
             const bool ha = (fa >= 0);
             const bool hb = (fb >= 0);
-            if (ha != hb) return ha;                 // found ones first
+            if (ha != hb) return ha;                  // found ones first
             if (ha && hb && fa != fb) return fa < fb; // earlier hit first
 
-            // tie-breakers (stable & deterministic):
             const int la = lens[(size_t)a], lb = lens[(size_t)b];
             if (la >= 0 && lb >= 0 && la != lb) return la < lb;
+
             const int va = vis[(size_t)a], vb = vis[(size_t)b];
             if (va != vb) return va < vb;
             return a < b;
         });
 
-        // strict 1..5 (no gaps)
-        for (int pos = 0; pos < 5; ++pos)
+        for (int pos = 0; pos < 6; ++pos)
             rank[(size_t)order[(size_t)pos]] = pos + 1;
 
-        const float rowH = (statsY1 - statsY0) / 5.0f;
+        const float rowH = (statsY1 - statsY0) / 6.0f; // was /5
 
         // +++ new: adaptive column widths (visited widest)
         const float availW = std::max(0.001f, contentX1 - contentX0);
@@ -377,16 +386,17 @@ void MazeViewer::renderUi_()
         };
         // --- number box
 
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 6; ++i) // was 5
         {
             const float y0 = statsY1 - (i + 1) * rowH;
             const float y1 = y0 + rowH;
 
-            if (i == uiAlgoIndex_) {
-                PushRect_(ui, contentX0 + 0.005f, y0 + 0.005f, contentX1 - 0.005f, y1 - 0.005f, 0.22f, 0.22f, 0.22f);
+            // only highlight when a single algo (0..5) is selected; ALL index is 6
+            if (uiAlgoIndex_ >= 0 && uiAlgoIndex_ < 6 && i == uiAlgoIndex_) {
+                PushRect_(ui, contentX0 + 0.005f, y0 + 0.005f, contentX1 - 0.005f, y1 - 0.005f,
+                          0.22f, 0.22f, 0.22f);
             }
 
-            // --- label: auto shrink to fit labelW
             const std::string_view rowLabel = rows[i];
             float pix = (rowLabel == "DIJKSTRA") ? 0.0062f : 0.0078f;
             const float needW = TextWidth5x7_(rowLabel, pix);
@@ -443,17 +453,16 @@ void MazeViewer::renderUi_()
     }
     // --- DIV
 
-    // ---- Bottom: 6 algorithm buttons (if you also want DIJKSTRA smaller there)
-    for (int i = 0; i < 6; ++i)
+    // ---- Bottom: 7 algorithm buttons
+    for (int i = 0; i < 7; ++i) // was 6
     {
         const float y0 = bottomY0 + i * (btnH + btnGap);
         const float y1 = y0 + btnH;
 
         PushRect_(ui, contentX0, y0, contentX1, y1, algos[i].r, algos[i].g, algos[i].b);
 
-        // label (DIJKSTRA smaller)
         const std::string_view label = algos[i].label;
-        const float pix = (label == "DIJKSTRA") ? 0.0064f : 0.0105f; // was ~0.0072f
+        const float pix = (label == "DIJKSTRA") ? 0.0064f : 0.0105f;
 
         const float tw  = TextWidth5x7_(label, pix);
         const float tx  = (contentX0 + contentX1) * 0.5f - tw * 0.5f;

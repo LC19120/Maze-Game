@@ -768,6 +768,141 @@ void FloydExploer::update()
     state = State::END;
 }
 
+// ---------------- BFS+ (break walls up to n=3) ----------------
+BFSPlusExploer::BFSPlusExploer(Maze maze)
+{
+    this->maze = maze;
+    this->state = State::START;
+    this->timeStep = 0;
+    this->way.clear();
+    this->path.clear();
+    this->found = false;
+    this->error.clear();
+    this->StartPoint = {0, 0, 0, 0.0f};
+    this->EndPoint   = {0, 0, 0, 0.0f};
+
+    while (!q.empty()) q.pop();
+    visited.clear();
+    parent.clear();
+}
+
+static void buildPathFromParent3D_(uint32_t startK,
+                                  uint32_t endK,
+                                  uint32_t W,
+                                  uint32_t H,
+                                  const std::unordered_map<uint32_t,uint32_t>& parent,
+                                  std::vector<PointInfo>& outPath)
+{
+    outPath.clear();
+    uint32_t cur = endK;
+
+    if (cur != startK && parent.find(cur) == parent.end()) return;
+
+    std::vector<uint32_t> rev;
+    rev.reserve(512);
+    rev.push_back(cur);
+
+    while (cur != startK)
+    {
+        auto it = parent.find(cur);
+        if (it == parent.end()) { outPath.clear(); return; }
+        cur = it->second;
+        rev.push_back(cur);
+        if (rev.size() > 5'000'000) { outPath.clear(); return; }
+    }
+
+    std::reverse(rev.begin(), rev.end());
+
+    const uint32_t base = W * H;
+    uint32_t step = 0;
+    for (uint32_t k3 : rev)
+    {
+        const uint32_t cell = k3 % base;
+        const uint32_t x = cell % W;
+        const uint32_t y = cell / W;
+        outPath.push_back({x, y, step++, 0.0f});
+    }
+}
+
+void BFSPlusExploer::update()
+{
+    const uint32_t H = (uint32_t)maze.grid.size();
+    const uint32_t W = (H > 0) ? (uint32_t)maze.grid[0].size() : 0;
+
+    if (W == 0 || H == 0) { state = State::END; error = "Empty grid."; return; }
+    if (cancelled_(this)) { state = State::END; error = "Cancelled."; return; }
+
+    auto inBounds = [&](int x, int y) -> bool {
+        return x >= 0 && y >= 0 && (uint32_t)x < W && (uint32_t)y < H;
+    };
+
+    constexpr uint8_t kMaxBreak = 3;
+    const uint32_t base = W * H;
+    auto key3 = [&](uint32_t x, uint32_t y, uint8_t b) -> uint32_t {
+        return (uint32_t)b * base + keyOf(x, y, W);
+    };
+
+    const uint32_t startK = key3(StartPoint.x, StartPoint.y, 0);
+    const uint32_t endCell = keyOf(EndPoint.x, EndPoint.y, W);
+
+    if (state == State::START)
+    {
+        state = State::EXPLORE;
+        timeStep = 1;
+
+        way.clear(); path.clear(); found = false; error.clear();
+        while (!q.empty()) q.pop();
+        visited.clear(); parent.clear();
+
+        q.push({StartPoint.x, StartPoint.y, 0, 0});
+        visited.insert(startK);
+        return;
+    }
+
+    if (state != State::EXPLORE) return;
+    timeStep += 1;
+
+    if (q.empty()) { state = State::END; found = false; error = "No path."; return; }
+
+    const SNode cur = q.front();
+    q.pop();
+
+    way.push_back({cur.x, cur.y, cur.step, (float)cur.step});
+
+    if (keyOf(cur.x, cur.y, W) == endCell)
+    {
+        const uint32_t endK = key3(cur.x, cur.y, cur.b);
+        buildPathFromParent3D_(startK, endK, W, H, parent, path);
+        found = !path.empty();
+        state = State::END;
+        return;
+    }
+
+    const int dx[4] = {0, 1, 0, -1};
+    const int dy[4] = {1, 0, -1, 0};
+
+    for (int i = 0; i < 4; ++i)
+    {
+        const int nx = (int)cur.x + dx[i];
+        const int ny = (int)cur.y + dy[i];
+        if (!inBounds(nx, ny)) continue;
+
+        const uint32_t ux = (uint32_t)nx;
+        const uint32_t uy = (uint32_t)ny;
+
+        const bool isWall = (maze.grid[uy][ux] == 1);
+        const uint8_t nb = (uint8_t)(cur.b + (isWall ? 1 : 0));
+        if (nb > kMaxBreak) continue;
+
+        const uint32_t nk = key3(ux, uy, nb);
+        if (visited.count(nk)) continue;
+
+        visited.insert(nk);
+        parent[nk] = key3(cur.x, cur.y, cur.b);
+        q.push({ux, uy, nb, cur.step + 1});
+    }
+}
+
 // ---------------- ALL (sync-run all algos) ----------------
 AllExploer::AllExploer(Maze maze)
 {
@@ -789,17 +924,15 @@ void AllExploer::update()
         found = false;
         error.clear();
 
-        // create all algos on fresh maze copies
         algos_[0] = std::make_unique<DFSExploer>(maze);
         algos_[1] = std::make_unique<BFSExploer>(maze);
-        algos_[2] = std::make_unique<DijkstraExploer>(maze);
-        algos_[3] = std::make_unique<AStarExploer>(maze);
+        algos_[2] = std::make_unique<BFSPlusExploer>(maze); // +++ NEW
+        algos_[3] = std::make_unique<DijkstraExploer>(maze);
+        algos_[4] = std::make_unique<AStarExploer>(maze);
 
         const bool floydAllowed = (maze.type == MazeType::Medium);
-        if (floydAllowed)
-            algos_[4] = std::make_unique<FloydExploer>(maze);
-        else
-            algos_[4].reset(); // Large/Ultra: no Floyd
+        if (floydAllowed) algos_[5] = std::make_unique<FloydExploer>(maze);
+        else algos_[5].reset();
 
         for (auto& a : algos_)
         {
@@ -817,27 +950,19 @@ void AllExploer::update()
     }
 
     if (state != State::EXPLORE) return;
-
     timeStep += 1;
 
     bool allEnded = true;
-
-    // step each algo once per update (logical "simultaneous")
     for (auto& a : algos_)
     {
         if (!a) continue;
-        if (a->state != State::END)
-            a->update();
-        if (a->state != State::END)
-            allEnded = false;
+        if (a->state != State::END) a->update();
+        if (a->state != State::END) allEnded = false;
     }
-
     if (!allEnded) return;
 
-    // finalize: pick the shortest found path as this->path (so PathFinder can return success)
     size_t bestLen = (size_t)-1;
     Exploer* best = nullptr;
-
     for (auto& a : algos_)
     {
         if (!a) continue;
@@ -848,16 +973,8 @@ void AllExploer::update()
         }
     }
 
-    if (best)
-    {
-        found = true;
-        path = best->path;
-    }
-    else
-    {
-        found = false;
-        error = "No path.";
-    }
+    if (best) { found = true; path = best->path; }
+    else { found = false; error = "No path."; }
 
     state = State::END;
 }

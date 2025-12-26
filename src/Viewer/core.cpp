@@ -181,12 +181,12 @@ void MazeViewer::requestBuild_(MazeType type, int32_t seed)
 
 void MazeViewer::requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey, int algoIndex)
 {
-    // clamp
     if (algoIndex < 0) algoIndex = 0;
-    if (algoIndex > 5) algoIndex = 5;
+    if (algoIndex > 6) algoIndex = 6;
     uiAlgoIndex_ = algoIndex;
 
-    Maze snapshot{};
+    Maze logic{};
+    Maze renderStart{};
     {
         std::lock_guard<std::mutex> lk(latestMazeMutex_);
         if (!hasMaze_) {
@@ -195,13 +195,39 @@ void MazeViewer::requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey
             return;
         }
 
-        // ALL: use clean baseline to clear rendering; single: keep latest to overlay
-        if (algoIndex == 5 && hasBaseMaze_) snapshot = baseMaze_;
-        else snapshot = latestMaze_;
+        logic = hasBaseMaze_ ? baseMaze_ : latestMaze_;
+        renderStart = latestMaze_;
+        if (algoIndex == 6) renderStart = logic; // ALL 从干净图开始
     }
 
-    // ALL: clear stats + clear rendered paths immediately (before background work)
-    if (algoIndex == 5)
+    // +++ FORCE endpoints: (1,1) -> (W-2,H-2)
+    const int H = (int)logic.grid.size();
+    const int W = (H > 0) ? (int)logic.grid[0].size() : 0;
+    if (W <= 2 || H <= 2) {
+        std::lock_guard<std::mutex> lk2(uiMsgMutex_);
+        uiLastMsg_ = "Maze too small.";
+        return;
+    }
+    sx = 1; sy = 1;
+    ex = W - 2; ey = H - 2;
+    // --- FORCE endpoints
+
+    // +++ IMPORTANT: restore wall cells in renderStart from base (prevents BFS+ “infinite wall breaking” visually)
+    if (hasBaseMaze_)
+    {
+        const int bH = (int)baseMaze_.grid.size();
+        const int bW = (bH > 0) ? (int)baseMaze_.grid[0].size() : 0;
+        if (bW == W && bH == H)
+        {
+            for (int y = 0; y < H; ++y)
+                for (int x = 0; x < W; ++x)
+                    if (baseMaze_.grid[(size_t)y][(size_t)x] == 1)
+                        renderStart.grid[(size_t)y][(size_t)x] = 1;
+        }
+    }
+    // --- restore walls
+
+    if (algoIndex == 6) // ALL: clear stats + clear rendering immediately
     {
         {
             std::lock_guard<std::mutex> lk(algoLenMutex_);
@@ -209,7 +235,7 @@ void MazeViewer::requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey
             algoVisited_.fill(0);
             algoFoundAt_.fill(-1);
         }
-        setMaze(snapshot); // clear previous painted paths on screen
+        setMaze(renderStart);
     }
 
     const uint64_t myToken = latestToken_.fetch_add(1, std::memory_order_relaxed) + 1;
@@ -222,38 +248,50 @@ void MazeViewer::requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey
         myCancel = cancelFlag_;
     }
 
-    const auto preset = PathPresetFor_(snapshot.type);
+    const auto preset = PathPresetFor_(logic.type);
     const uint32_t updateEvery = (uint32_t)std::max(1, preset.updateEvery);
-    const auto delay = std::chrono::milliseconds(std::max(0, preset.delayMs));
 
+    auto delay = std::chrono::milliseconds(std::max(0, preset.delayMs));
+
+    // algoIndex mapping: 0=DFS,1=BFS,2=BFS+,3=Dijkstra,4=A*,5=Floyd,6=ALL
+
+    // ALL: cancel delay completely
+    if (algoIndex == 6)
     {
-        std::lock_guard<std::mutex> lk(uiMsgMutex_);
-        uiLastMsg_ = "Finding path...";
+        delay = std::chrono::milliseconds(0);
     }
+    else
+    {
+        // BFS / Dijkstra: 2x faster
+        if (algoIndex == 1 || algoIndex == 3)
+            delay = std::chrono::milliseconds(delay.count() / 2);
 
-    pool_.enqueue([this, snapshot, sx, sy, ex, ey, algoIndex, myToken, myCancel, updateEvery, delay] {
+        // BFS+: additional 2x faster (total 4x vs baseline)
+        if (algoIndex == 2)
+            delay = std::chrono::milliseconds(delay.count() / 8);
+    }
+    // --- Speed up
+
+    pool_.enqueue([this, logic, renderStart, sx, sy, ex, ey, algoIndex, myToken, myCancel, updateEvery, delay] {
         std::vector<std::pair<int32_t, int32_t>> steps;
         std::string err;
 
         auto algoFromIndex = [](int i) -> PathFinder::PathAlgo {
             if (i < 0) i = 0;
-            if (i > 5) i = 5;
+            if (i > 6) i = 6;
             return (PathFinder::PathAlgo)i;
         };
 
-        if (algoIndex == 5) // ALL
+        if (algoIndex == 6) // ALL
         {
-            std::array<int, 5> lens{};
-            std::array<int, 5> visited{};
-            std::array<int, 5> foundAt{};
-            std::array<std::vector<std::pair<int32_t,int32_t>>, 5> allPaths;
+            std::array<int, 6> lens{};
+            std::array<int, 6> visited{};
+            std::array<int, 6> foundAt{};
+            std::array<std::vector<std::pair<int32_t,int32_t>>, 6> allPaths;
 
             const bool ok = PathFinder::FindPath(
-                snapshot,
-                {sx, sy},
-                {ex, ey},
-                steps,
-                err,
+                logic, {sx, sy}, {ex, ey},
+                steps, err,
                 PathFinder::PathAlgo::All,
                 [this, myToken, myCancel](const Maze& animMaze) {
                     if (myCancel->load(std::memory_order_relaxed)) return;
@@ -268,7 +306,8 @@ void MazeViewer::requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey
                 &visited,
                 nullptr,
                 &foundAt,
-                nullptr
+                nullptr,
+                &renderStart
             );
 
             {
@@ -283,15 +322,12 @@ void MazeViewer::requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey
             return;
         }
 
-        // single algo: DO NOT clear stats/paths; overlay new render on existing
         int visitedSingle = 0;
         int foundAtSingle = -1;
+
         const bool ok2 = PathFinder::FindPath(
-            snapshot,
-            {sx, sy},
-            {ex, ey},
-            steps,
-            err,
+            logic, {sx, sy}, {ex, ey},
+            steps, err,
             algoFromIndex(algoIndex),
             [this, myToken, myCancel](const Maze& animMaze) {
                 if (myCancel->load(std::memory_order_relaxed)) return;
@@ -301,26 +337,23 @@ void MazeViewer::requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey
             myCancel.get(),
             updateEvery,
             delay,
-            nullptr,
-            nullptr,
-            nullptr,
+            nullptr, nullptr, nullptr,
             &visitedSingle,
             nullptr,
-            &foundAtSingle
+            &foundAtSingle,
+            &renderStart
         );
 
-        if (algoIndex >= 0 && algoIndex < 5)
+        if (algoIndex >= 0 && algoIndex < 6)
         {
             std::lock_guard<std::mutex> lk(algoLenMutex_);
-            // only update this algo's row (keep others)
             algoPathLen_[(size_t)algoIndex] = ok2 ? (int)steps.size() : -1;
             algoVisited_[(size_t)algoIndex] = visitedSingle;
             algoFoundAt_[(size_t)algoIndex] = foundAtSingle;
         }
 
         std::lock_guard<std::mutex> lk(uiMsgMutex_);
-        if (myCancel->load(std::memory_order_relaxed)) uiLastMsg_ = "Path cancelled.";
-        else uiLastMsg_ = ok2 ? "Path done." : ("Path failed: " + err);
+        uiLastMsg_ = ok2 ? "Path done." : ("Path failed: " + err);
     });
 }
 

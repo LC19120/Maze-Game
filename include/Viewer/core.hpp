@@ -105,10 +105,10 @@ private:
     // --- add
 
     // +++ add: algo stats (5 algos only)
-    int uiAlgoIndex_{0}; // 0..5 buttons
+    int uiAlgoIndex_{0}; // 0..6 buttons
     mutable std::mutex algoLenMutex_;
-    std::array<int, 5> algoPathLen_{{-1, -1, -1, -1, -1}};   // DFS..FLOYD
-    std::array<int, 5> algoVisited_{{0, 0, 0, 0, 0}};        // DFS..FLOYD
-    std::array<int, 5> algoFoundAt_{{-1, -1, -1, -1, -1}}; // +++ first-hit visited index
+    std::array<int, 6> algoPathLen_{{-1, -1, -1, -1, -1, -1}};
+    std::array<int, 6> algoVisited_{{0, 0, 0, 0, 0, 0}};
+    std::array<int, 6> algoFoundAt_{{-1, -1, -1, -1, -1, -1}}; // +++ first-hit visited index
     // --- add
 };
