@@ -126,7 +126,7 @@ void MazeViewer::initUiCallbacks_()
         }
 
         if (key == GLFW_KEY_B) {
-            self->requestBuild_(MazeType::Medium, self->uiSeed_);
+            self->requestBuild_(self->uiSeed_);
             return;
         }
         if (key == GLFW_KEY_F) {
@@ -191,7 +191,7 @@ void MazeViewer::initUiCallbacks_()
             self->uiFocus_ = UiField::None;
             self->uiEdit_.clear();
 
-            self->requestBuild_(MazeType::Medium, self->uiSeed_);
+            self->requestBuild_(self->uiSeed_);
             self->updateWindowTitle_();
             return;
         }

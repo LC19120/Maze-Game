@@ -47,10 +47,7 @@ add_library(MazeCore
     src/Viewer/input.cpp
     src/Viewer/ui.cpp
     src/Viewer/maze_render.cpp
-
-    src/Thread/ThreadPool.cpp
     src/app.cpp
-    src/Exploer/Exploer.cpp
 )
 
 target_include_directories(MazeCore
