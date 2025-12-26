@@ -4,10 +4,7 @@
 
 enum class MazeType
 {
-    Small = 51,
-    Medium = 101,
-    Large = 201,
-    Ultra = 501,
+    Medium = 71,
 };
 
 class Maze
@@ -24,9 +21,6 @@ public:
     static Maze Build(
         MazeType type,
         int32_t seed,
-        const std::function<void(const Maze&)>& onUpdate,
-        std::atomic<bool>* cancel = nullptr,
-        uint32_t updateEvery = 50,
-        std::chrono::milliseconds delay = std::chrono::milliseconds{0}
+        const std::function<void(const Maze&)>& onUpdate
     );
 };

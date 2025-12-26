@@ -1,18 +1,41 @@
 #include "core/PathFinder.hpp"
 #include "Exploer/Exploer.hpp"
 
-static bool InBounds(int32_t x, int32_t y, uint32_t w, uint32_t h) {
+#include <algorithm>
+#include <array>
+#include <memory>
+#include <thread>
+#include <queue>         // +++
+#include <random>        // +++
+#include <unordered_map> // +++
+#include <limits>        // +++
+
+
+static bool InBounds_(int32_t x, int32_t y, uint32_t w, uint32_t h)
+{
     return x >= 0 && y >= 0 && (uint32_t)x < w && (uint32_t)y < h;
 }
 
-bool PathFinder::FindPath(
-    const Maze& maze,
-    const std::pair<int32_t, int32_t>& start,
-    const std::pair<int32_t, int32_t>& end,
-    std::vector<std::pair<int32_t, int32_t>>& outSteps,
-    std::string& outError
-) {
-    return FindPath(maze, start, end, outSteps, outError, {}, nullptr, 1, std::chrono::milliseconds{0});
+static std::unique_ptr<Exploer> MakeExploer_(PathFinder::PathAlgo algo, const Maze& maze, std::string& outError)
+{
+    auto floydAllowed = [&]() {
+        return maze.type == MazeType::Medium;
+    };
+
+    switch (algo)
+    {
+    case PathFinder::PathAlgo::DFS:      return std::make_unique<DFSExploer>(maze);
+    case PathFinder::PathAlgo::BFS:      return std::make_unique<BFSExploer>(maze);
+    case PathFinder::PathAlgo::Dijkstra: return std::make_unique<DijkstraExploer>(maze);
+    case PathFinder::PathAlgo::AStar:    return std::make_unique<AStarExploer>(maze);
+    case PathFinder::PathAlgo::Floyd:
+        if (!floydAllowed()) { outError = "Floyd is only allowed on Medium(71)."; return nullptr; }
+        return std::make_unique<FloydExploer>(maze);
+    case PathFinder::PathAlgo::All:      return std::make_unique<AllExploer>(maze);
+    default:
+        outError = "Unknown algorithm.";
+        return nullptr;
+    }
 }
 
 bool PathFinder::FindPath(
@@ -21,74 +44,394 @@ bool PathFinder::FindPath(
     const std::pair<int32_t, int32_t>& end,
     std::vector<std::pair<int32_t, int32_t>>& outSteps,
     std::string& outError,
+    PathAlgo requestedAlgo,
     const std::function<void(const Maze&)>& onStep,
     std::atomic<bool>* cancel,
     uint32_t updateEvery,
-    std::chrono::milliseconds delay
-) {
+    std::chrono::milliseconds delay,
+    std::array<int, 5>* outAllLens,
+    std::array<std::vector<std::pair<int32_t,int32_t>>, 5>* outAllPaths,
+    std::array<int, 5>* outAllVisited,
+    int* outVisited,
+    std::array<int, 5>* outAllFoundAt,
+    int* outFoundAt)
+{
     outSteps.clear();
     outError.clear();
 
     const uint32_t H = (uint32_t)maze.grid.size();
     const uint32_t W = (H > 0) ? (uint32_t)maze.grid[0].size() : 0;
-
     if (W == 0 || H == 0) { outError = "Maze grid is empty."; return false; }
-    if (!InBounds(start.first, start.second, W, H)) { outError = "Start out of bounds."; return false; }
-    if (!InBounds(end.first, end.second, W, H)) { outError = "End out of bounds."; return false; }
+    if (!InBounds_(start.first, start.second, W, H)) { outError = "Start out of bounds."; return false; }
+    if (!InBounds_(end.first, end.second, W, H)) { outError = "End out of bounds."; return false; }
 
-    DFSExploer exploer(maze);
-    exploer.StartPoint = {(uint32_t)start.first, (uint32_t)start.second, 0u, 0.0f};
-    exploer.EndPoint   = {(uint32_t)end.first,   (uint32_t)end.second,   0u, 0.0f};
-    exploer.state = State::START;
+    // ---- REMOVE Floyd fallback: always run the requested algo
+    PathAlgo runAlgo = requestedAlgo;
+    // ---- REMOVE block:
+    // const uint64_t cells = (uint64_t)W * (uint64_t)H;
+    // if (requestedAlgo == PathAlgo::Floyd && cells > 160 * 160) { ... }
 
-    // 动画用的迷宫副本：2 = explored
-    Maze anim = maze;
-    auto paint = [&](uint32_t x, uint32_t y) {
-        if (y < anim.grid.size() && x < anim.grid[y].size()) {
-            if (anim.grid[y][x] == 0) anim.grid[y][x] = 2;
+    auto exploer = MakeExploer_(runAlgo, maze, outError);
+    if (!exploer) return false;
+
+    exploer->cancel = cancel;
+    exploer->StartPoint = {(uint32_t)start.first, (uint32_t)start.second, 0u, 0.0f};
+    exploer->EndPoint   = {(uint32_t)end.first,   (uint32_t)end.second,   0u, 0.0f};
+    exploer->state = State::START;
+
+    // color code must match BUTTON (requested algo), not fallback algo
+    auto codeFor = [&](PathAlgo a) -> uint8_t
+    {
+        switch (a)
+        {
+        case PathAlgo::DFS:      return 2;
+        case PathAlgo::BFS:      return 3;
+        case PathAlgo::Dijkstra: return 4;
+        case PathAlgo::AStar:    return 5;
+        case PathAlgo::Floyd:    return 6;
+        default:                 return 2;
         }
     };
 
-    size_t painted = 0;
+    // +++ NEW: desaturated "visited" color code
+    auto exploreCodeFor = [&](PathAlgo a) -> uint8_t
+    {
+        // 12..16 correspond to DFS..FLOYD visited tint
+        return (uint8_t)(codeFor(a) + 10);
+    };
+    // --- NEW
 
-    const uint32_t maxSteps = W * H * 8u;
+    Maze anim = maze;
+
+    // "first come wins" OR "overwrite" depending on mode
+    auto paintExplore = [&](uint32_t x, uint32_t y, uint8_t exploreCode, bool overwrite)
+    {
+        if (y >= anim.grid.size() || x >= anim.grid[y].size()) return;
+        if (anim.grid[y][x] == 1) return; // wall
+
+        if (overwrite)
+        {
+            // single algo: always overwrite so visited tint is visible even on existing colored cells
+            anim.grid[y][x] = exploreCode;
+        }
+        else
+        {
+            // ALL: keep first-come wins to avoid destroying other algos' colors
+            if (anim.grid[y][x] == 0) anim.grid[y][x] = exploreCode;
+        }
+    };
+
+    // path painting (NOT bitmask): write color codes 2..6
+    auto paintPathOverwrite = [&](const std::vector<PointInfo>& p, uint8_t code)
+    {
+        for (const auto& pt : p)
+        {
+            if (pt.y >= anim.grid.size() || pt.x >= anim.grid[pt.y].size()) continue;
+            if (anim.grid[pt.y][pt.x] == 1) continue;
+            anim.grid[pt.y][pt.x] = code; // overwrite for clarity (single algo)
+        }
+    };
+
+    auto paintPathFirstCome = [&](const std::vector<PointInfo>& p, uint8_t code)
+    {
+        for (const auto& pt : p)
+        {
+            if (pt.y >= anim.grid.size() || pt.x >= anim.grid[pt.y].size()) continue;
+            if (anim.grid[pt.y][pt.x] == 1) continue;
+
+            const uint8_t cur = anim.grid[pt.y][pt.x];
+
+            // allow overwriting "visited tint" (12..16), but don't overwrite other final paths (2..6)
+            const bool emptyOrVisited = (cur == 0) || (cur >= 12 && cur <= 16);
+            if (emptyOrVisited) anim.grid[pt.y][pt.x] = code;
+        }
+    };
+
+    std::array<size_t, 5> paintedAllEach{{0,0,0,0,0}};
+    size_t paintedSingle = 0;
+    size_t paintedTotalAll = 0;
+
+    const uint32_t maxSteps = (runAlgo == PathAlgo::All) ? (W * H * 64u) : (W * H * 32u);
     uint32_t guard = 0;
 
-    while (exploer.state != State::END) {
-        if (cancel && cancel->load(std::memory_order_relaxed)) {
-            outError = "Cancelled.";
-            return false;
+    int foundAtSingle = -1;
+    std::array<int, 5> foundAtAll;
+    foundAtAll.fill(-1);
+
+    while (exploer->state != State::END)
+    {
+        if (cancel && cancel->load(std::memory_order_relaxed)) { outError = "Cancelled."; return false; }
+
+        exploer->update();
+        if (++guard > maxSteps) { outError = "Search exceeded step limit."; return false; }
+
+        // +++ capture first time reaching end ("point first arrived")
+        if (requestedAlgo != PathAlgo::All)
+        {
+            if (foundAtSingle < 0 && exploer->found)
+                foundAtSingle = (int)exploer->way.size();
         }
-
-        exploer.update();
-
-        if (++guard > maxSteps) {
-            outError = "Search exceeded step limit (check walkable/visited).";
-            return false;
-        }
-
-        if (exploer.way.size() > painted) {
-            for (size_t i = painted; i < exploer.way.size(); ++i) {
-                paint(exploer.way[i].x, exploer.way[i].y);
+        else
+        {
+            auto* all = dynamic_cast<AllExploer*>(exploer.get());
+            if (all)
+            {
+                for (int ai = 0; ai < 5; ++ai)
+                {
+                    auto* a = all->algos_[(size_t)ai].get();
+                    if (!a) continue;
+                    if (foundAtAll[(size_t)ai] < 0 && a->found)
+                        foundAtAll[(size_t)ai] = (int)a->way.size();
+                }
             }
-            painted = exploer.way.size();
+        }
+        // --- capture
 
-            if (onStep && updateEvery > 0 && (painted % updateEvery == 0)) {
+        if (runAlgo != PathAlgo::All)
+        {
+            const uint8_t exploreCode = exploreCodeFor(requestedAlgo);
+
+            if (exploer->way.size() > paintedSingle)
+            {
+                for (size_t i = paintedSingle; i < exploer->way.size(); ++i)
+                    paintExplore(exploer->way[i].x, exploer->way[i].y, exploreCode, /*overwrite=*/true);
+
+                paintedSingle = exploer->way.size();
+
+                if (onStep && updateEvery > 0 && (paintedSingle % updateEvery == 0))
+                {
+                    onStep(anim);
+                    if (delay.count() > 0) std::this_thread::sleep_for(delay);
+                }
+            }
+        }
+        else
+        {
+            auto* all = dynamic_cast<AllExploer*>(exploer.get());
+            if (!all) { outError = "ALL: exploer type mismatch."; return false; }
+
+            for (int ai = 0; ai < 5; ++ai)
+            {
+                auto* a = all->algos_[(size_t)ai].get();
+                if (!a) continue;
+
+                const uint8_t exploreCode = (uint8_t)(2 + ai + 10); // 12..16
+
+                if (a->way.size() > paintedAllEach[(size_t)ai])
+                {
+                    for (size_t i = paintedAllEach[(size_t)ai]; i < a->way.size(); ++i)
+                        paintExplore(a->way[i].x, a->way[i].y, exploreCode, /*overwrite=*/false);
+
+                    paintedTotalAll += (a->way.size() - paintedAllEach[(size_t)ai]);
+                    paintedAllEach[(size_t)ai] = a->way.size();
+                }
+            }
+
+            if (onStep && updateEvery > 0 && (paintedTotalAll % updateEvery == 0))
+            {
                 onStep(anim);
                 if (delay.count() > 0) std::this_thread::sleep_for(delay);
             }
         }
     }
 
-    outSteps.reserve(exploer.way.size());
-    bool reachedEnd = false;
-    for (const auto& p : exploer.way) {
-        outSteps.emplace_back((int32_t)p.x, (int32_t)p.y);
-        if (p.x == exploer.EndPoint.x && p.y == exploer.EndPoint.y) reachedEnd = true;
+    // paint final paths (button colors)
+    if (runAlgo != PathAlgo::All)
+    {
+        paintPathOverwrite(exploer->path, codeFor(requestedAlgo)); // 2..6
+    }
+    else
+    {
+        auto* all = dynamic_cast<AllExploer*>(exploer.get());
+        if (all)
+        {
+            for (int ai = 0; ai < 5; ++ai)
+            {
+                auto* a = all->algos_[(size_t)ai].get();
+                if (!a) continue;
+                if (a->found && !a->path.empty())
+                    paintPathFirstCome(a->path, (uint8_t)(2 + ai)); // 2..6
+            }
+        }
     }
 
-    if (!reachedEnd) { outError = "No path found."; return false; }
+    if (onStep) onStep(anim);
 
-    if (onStep) onStep(anim); // 最终再推一次
+    // +++ visited output
+    if (outVisited) *outVisited = (int)exploer->way.size();
+    if (outFoundAt) *outFoundAt = foundAtSingle;
+
+    if (requestedAlgo == PathAlgo::All && outAllFoundAt)
+        *outAllFoundAt = foundAtAll;
+    // --- visited output
+
+    // fill per-algo lens + paths (+ visited) when ALL requested
+    if (requestedAlgo == PathAlgo::All)
+    {
+        auto* all = dynamic_cast<AllExploer*>(exploer.get());
+
+        if (outAllLens) outAllLens->fill(-1);
+        if (outAllPaths) for (auto& v : *outAllPaths) v.clear();
+        if (outAllVisited) outAllVisited->fill(0);
+
+        if (all)
+        {
+            for (int ai = 0; ai < 5; ++ai)
+            {
+                auto* a = all->algos_[(size_t)ai].get();
+                if (!a) continue;
+
+                if (outAllLens)
+                    (*outAllLens)[(size_t)ai] = (a->found && !a->path.empty()) ? (int)a->path.size() : -1;
+
+                if (outAllVisited)
+                    (*outAllVisited)[(size_t)ai] = (int)a->way.size();
+
+                if (outAllPaths && a->found && !a->path.empty())
+                {
+                    auto& dst = (*outAllPaths)[(size_t)ai];
+                    dst.reserve(a->path.size());
+                    for (const auto& p : a->path)
+                        dst.emplace_back((int32_t)p.x, (int32_t)p.y);
+                }
+            }
+        }
+    }
+
+    if (!exploer->found || exploer->path.empty())
+    {
+        if (exploer->error.size()) outError = exploer->error;
+        if (outError.empty()) outError = "No path found.";
+        return false;
+    }
+
+    outSteps.reserve(exploer->path.size());
+    for (const auto& p : exploer->path)
+        outSteps.emplace_back((int32_t)p.x, (int32_t)p.y);
+
     return true;
+}
+
+static bool Walkable_(const Maze& m, int x, int y)
+{
+    if (y < 0 || x < 0) return false;
+    if ((size_t)y >= m.grid.size()) return false;
+    if ((size_t)x >= m.grid[(size_t)y].size()) return false;
+    return m.grid[(size_t)y][(size_t)x] != 1;
+}
+
+static std::vector<int> BfsDist_(const Maze& m, int sx, int sy)
+{
+    const int H = (int)m.grid.size();
+    const int W = (H > 0) ? (int)m.grid[0].size() : 0;
+
+    std::vector<int> dist((size_t)W * (size_t)H, -1);
+    if (W <= 0 || H <= 0) return dist;
+    if (!Walkable_(m, sx, sy)) return dist;
+
+    auto idx = [&](int x, int y) { return (size_t)y * (size_t)W + (size_t)x; };
+
+    std::queue<std::pair<int,int>> q;
+    dist[idx(sx,sy)] = 0;
+    q.push({sx,sy});
+
+    const int dx4[4] = {1,-1,0,0};
+    const int dy4[4] = {0,0,1,-1};
+
+    while (!q.empty())
+    {
+        auto [x,y] = q.front(); q.pop();
+        const int d = dist[idx(x,y)];
+        for (int k=0;k<4;++k)
+        {
+            const int nx = x + dx4[k];
+            const int ny = y + dy4[k];
+            if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+            if (!Walkable_(m, nx, ny)) continue;
+            if (dist[idx(nx,ny)] >= 0) continue;
+            dist[idx(nx,ny)] = d + 1;
+            q.push({nx,ny});
+        }
+    }
+    return dist;
+}
+
+// sample K different shortest paths (same length), diversified by "used edges"
+static std::vector<std::vector<std::pair<uint32_t,uint32_t>>> SampleKShortest_(
+    const Maze& m, int sx, int sy, int ex, int ey, int K, uint32_t seed)
+{
+    std::vector<std::vector<std::pair<uint32_t,uint32_t>>> out;
+    if (K <= 0) return out;
+
+    const int H = (int)m.grid.size();
+    const int W = (H > 0) ? (int)m.grid[0].size() : 0;
+    if (W <= 0 || H <= 0) return out;
+
+    auto dist = BfsDist_(m, sx, sy);
+    auto idx = [&](int x, int y) { return (size_t)y * (size_t)W + (size_t)x; };
+
+    if (sx < 0 || sy < 0 || ex < 0 || ey < 0 || sx >= W || ex >= W || sy >= H || ey >= H) return out;
+    const int targetD = dist[idx(ex,ey)];
+    if (targetD < 0) return out;
+
+    const int dx4[4] = {1,-1,0,0};
+    const int dy4[4] = {0,0,1,-1};
+
+    std::unordered_map<uint64_t, int> used;
+    used.reserve(8192);
+
+    auto edgeKey = [&](int ax,int ay,int bx,int by)->uint64_t{
+        const uint32_t a = (uint32_t)idx(ax,ay);
+        const uint32_t b = (uint32_t)idx(bx,by);
+        const uint32_t lo = std::min(a,b), hi = std::max(a,b);
+        return (uint64_t)lo << 32 | (uint64_t)hi;
+    };
+
+    std::mt19937 rng(seed);
+
+    for (int pi = 0; pi < K; ++pi)
+    {
+        std::vector<std::pair<uint32_t,uint32_t>> path;
+        path.reserve((size_t)targetD + 1);
+
+        int x = sx, y = sy;
+        path.push_back({(uint32_t)x,(uint32_t)y});
+
+        std::array<int,4> ord{{0,1,2,3}};
+        std::shuffle(ord.begin(), ord.end(), rng);
+
+        bool ok = true;
+        for (int step = 0; step < targetD; ++step)
+        {
+            int bestNx = 0, bestNy = 0;
+            int bestCost = std::numeric_limits<int>::max();
+            bool has = false;
+
+            for (int t=0;t<4;++t)
+            {
+                const int k = ord[(size_t)t];
+                const int nx = x + dx4[k];
+                const int ny = y + dy4[k];
+                if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+                if (!Walkable_(m, nx, ny)) continue;
+
+                const int nd = dist[idx(nx,ny)];
+                if (nd != dist[idx(x,y)] + 1) continue; // stay on shortest DAG
+
+                const int c = used[edgeKey(x,y,nx,ny)];
+                if (!has || c < bestCost) { bestCost = c; bestNx = nx; bestNy = ny; has = true; }
+            }
+
+            if (!has) { ok = false; break; }
+
+            used[edgeKey(x,y,bestNx,bestNy)] += 1;
+            x = bestNx; y = bestNy;
+            path.push_back({(uint32_t)x,(uint32_t)y});
+        }
+
+        if (!ok || x != ex || y != ey) continue;
+        out.push_back(std::move(path));
+    }
+
+    return out;
 }

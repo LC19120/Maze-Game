@@ -14,11 +14,8 @@ static bool parseMazeType(const std::string& s, MazeType& out)
     t.reserve(s.size());
     for (unsigned char ch : s) t.push_back((char)std::tolower(ch));
 
-    if (t == "small" || t == "s")   { out = MazeType::Small;  return true; }
-    if (t == "medium" || t == "m")  { out = MazeType::Medium; return true; }
-    if (t == "large" || t == "l")   { out = MazeType::Large;  return true; }
-    if (t == "ultra" || t == "u")   { out = MazeType::Ultra;  return true; }
-
+    // only Medium exists now
+    if (t == "medium" || t == "m" || t == "71") { out = MazeType::Medium; return true; }
     return false;
 }
 

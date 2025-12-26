@@ -2,6 +2,7 @@
 #include "core/Common.hpp"
 #include "core/MazeBuilder.hpp"
 #include "Thread/ThreadPool.hpp"
+#include <array>
 
 class MazeViewer
 {
@@ -36,12 +37,10 @@ private:
 
     // UI actions (runs tasks in thread pool)
     void requestBuild_(MazeType type, int32_t seed);
-    void requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey);
+    void requestFindPath_(int32_t sx, int32_t sy, int32_t ex, int32_t ey, int algoIndex); // change
     void cancelWork_();
 
-    // +++ add
     void applyEdit_();
-    // --- add
 
 private:
     // maze data
@@ -55,6 +54,12 @@ private:
     Maze latestMaze_{};
     bool hasMaze_{false};
 
+    // +++ add: immutable baseline maze (used to clear previous painted paths)
+    Maze baseMaze_{};
+    bool hasBaseMaze_{false};
+    // NOTE: protected by latestMazeMutex_ (same mutex as latestMaze_/hasMaze_)
+    // --- add
+
     // work control
     ThreadPool pool_;
     std::atomic<uint64_t> latestToken_{0};
@@ -63,7 +68,7 @@ private:
 
     // UI state
     int uiSeed_{0};
-    int uiTypeIndex_{0}; // 0..3 => Small/Medium/Large/Ultra
+    // int uiTypeIndex_{0}; // REMOVE: size selection removed
     int uiStartX_{1}, uiStartY_{1};
     int uiEndX_{1}, uiEndY_{1};
     int uiUpdateEvery_{5};
@@ -97,5 +102,13 @@ private:
 
     // +++ add: split maze draw out of core.cpp
     void drawMaze_();
+    // --- add
+
+    // +++ add: algo stats (5 algos only)
+    int uiAlgoIndex_{0}; // 0..5 buttons
+    mutable std::mutex algoLenMutex_;
+    std::array<int, 5> algoPathLen_{{-1, -1, -1, -1, -1}};   // DFS..FLOYD
+    std::array<int, 5> algoVisited_{{0, 0, 0, 0, 0}};        // DFS..FLOYD
+    std::array<int, 5> algoFoundAt_{{-1, -1, -1, -1, -1}}; // +++ first-hit visited index
     // --- add
 };

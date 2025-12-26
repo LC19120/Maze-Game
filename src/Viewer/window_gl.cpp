@@ -60,8 +60,8 @@ void MazeViewer::initWindowAndGL_()
 #endif
 
     // optional: set a 12:9 initial size (4:3)
-    fbW_ = 1200;
-    fbH_ = 900;
+    fbW_ = 900;
+    fbH_ = 600;
 
     GLFWwindow* win = glfwCreateWindow(fbW_, fbH_, "Maze Viewer", nullptr, nullptr);
     if (!win)
@@ -70,7 +70,7 @@ void MazeViewer::initWindowAndGL_()
         throw std::runtime_error("glfwCreateWindow failed");
     }
 
-    glfwSetWindowAspectRatio(win, 4, 3);
+    glfwSetWindowAspectRatio(win, 3, 2);
 
     window_ = win;
     glfwMakeContextCurrent(win);
@@ -88,8 +88,8 @@ void MazeViewer::initWindowAndGL_()
     const char* vsSrc = R"GLSL(
         #version 330 core
         layout(location = 0) in vec2 aPos;
-        layout(location = 1) in vec3 aColor;
-        out vec3 vColor;
+        layout(location = 1) in vec4 aColor;   // +++ was vec3
+        out vec4 vColor;                       // +++ was vec3
         void main() {
             vColor = aColor;
             gl_Position = vec4(aPos, 0.0, 1.0);
@@ -98,10 +98,10 @@ void MazeViewer::initWindowAndGL_()
 
     const char* fsSrc = R"GLSL(
         #version 330 core
-        in vec3 vColor;
+        in vec4 vColor;        // +++
         out vec4 FragColor;
         void main() {
-            FragColor = vec4(vColor, 1.0);
+            FragColor = vColor; // +++ keep alpha
         }
     )GLSL";
 
@@ -120,6 +120,11 @@ void MazeViewer::initWindowAndGL_()
     if (!program_)
         throw std::runtime_error("Program link failed");
 
+    // +++ enable alpha blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // --- enable alpha blending
+
     // Maze VAO/VBO
     glGenVertexArrays(1, &vao_);
     glGenBuffers(1, &vbo_);
@@ -128,7 +133,7 @@ void MazeViewer::initWindowAndGL_()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r)); // +++ 4 floats
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
@@ -140,7 +145,7 @@ void MazeViewer::initWindowAndGL_()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r)); // +++ 4 floats
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 

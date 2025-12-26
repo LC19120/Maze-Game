@@ -19,35 +19,24 @@
 struct Vertex
 {
     float x, y;
-    float r, g, b;
+    float r, g, b, a; // +++ add alpha
 };
 
 inline void PushRect_(std::vector<Vertex>& out,
                       float x0, float y0, float x1, float y1,
-                      float r, float g, float b)
+                      float r, float g, float b,
+                      float a = 1.0f) // +++ default opaque
 {
-    out.push_back({x0, y0, r, g, b});
-    out.push_back({x1, y0, r, g, b});
-    out.push_back({x1, y1, r, g, b});
+    out.push_back({x0, y0, r, g, b, a});
+    out.push_back({x1, y0, r, g, b, a});
+    out.push_back({x1, y1, r, g, b, a});
 
-    out.push_back({x0, y0, r, g, b});
-    out.push_back({x1, y1, r, g, b});
-    out.push_back({x0, y1, r, g, b});
+    out.push_back({x0, y0, r, g, b, a});
+    out.push_back({x1, y1, r, g, b, a});
+    out.push_back({x0, y1, r, g, b, a});
 }
 
 inline bool Hit_(float mx, float my, float x0, float y0, float x1, float y1)
 {
     return mx >= x0 && mx <= x1 && my >= y0 && my <= y1;
-}
-
-inline MazeType UiIndexToType_(int idx)
-{
-    switch (idx)
-    {
-    case 0: return MazeType::Small;
-    case 1: return MazeType::Medium;
-    case 2: return MazeType::Large;
-    case 3: return MazeType::Ultra;
-    default: return MazeType::Small;
-    }
 }

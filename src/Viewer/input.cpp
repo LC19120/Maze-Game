@@ -6,47 +6,95 @@
 
 void MazeViewer::applyEdit_()
 {
-    auto parseInt = [&](int& dst)
+    auto parseInt = [&](int &dst)
     {
-        if (uiEdit_.empty() || uiEdit_ == "-") return;
-        try { dst = std::stoi(uiEdit_); } catch (...) {}
+        if (uiEdit_.empty() || uiEdit_ == "-")
+            return;
+        try
+        {
+            dst = std::stoi(uiEdit_);
+        }
+        catch (...)
+        {
+        }
     };
 
     switch (uiFocus_)
     {
-    case UiField::Seed:        parseInt(uiSeed_); break;
-    case UiField::StartX:      parseInt(uiStartX_); break;
-    case UiField::StartY:      parseInt(uiStartY_); break;
-    case UiField::EndX:        parseInt(uiEndX_); break;
-    case UiField::EndY:        parseInt(uiEndY_); break;
-    case UiField::UpdateEvery: parseInt(uiUpdateEvery_); break;
-    case UiField::DelayMs:     parseInt(uiDelayMs_); break;
-    default: break;
+    case UiField::Seed:
+        parseInt(uiSeed_);
+        break;
+    case UiField::StartX:
+        parseInt(uiStartX_);
+        break;
+    case UiField::StartY:
+        parseInt(uiStartY_);
+        break;
+    case UiField::EndX:
+        parseInt(uiEndX_);
+        break;
+    case UiField::EndY:
+        parseInt(uiEndY_);
+        break;
+    case UiField::UpdateEvery:
+        parseInt(uiUpdateEvery_);
+        break;
+    case UiField::DelayMs:
+        parseInt(uiDelayMs_);
+        break;
+    default:
+        break;
     }
 }
 
 void MazeViewer::initUiCallbacks_()
 {
-    GLFWwindow* win = static_cast<GLFWwindow*>(window_);
+    GLFWwindow *win = static_cast<GLFWwindow *>(window_);
     glfwSetWindowUserPointer(win, this);
 
-    glfwSetCharCallback(win, [](GLFWwindow* w, unsigned int codepoint)
-    {
+    glfwSetCharCallback(win, [](GLFWwindow *w, unsigned int codepoint)
+                        {
         auto* self = static_cast<MazeViewer*>(glfwGetWindowUserPointer(w));
         if (!self) return;
         if (self->uiFocus_ == UiField::None) return;
 
         if (codepoint > 127) return;
         const char ch = (char)codepoint;
-        if (ch >= '0' && ch <= '9') {
-            if (self->uiEdit_.size() < 12) self->uiEdit_.push_back(ch);
-        } else if (ch == '-') {
-            if (self->uiEdit_.empty()) self->uiEdit_.push_back(ch);
-        }
-    });
 
-    glfwSetKeyCallback(win, [](GLFWwindow* w, int key, int /*scancode*/, int action, int /*mods*/)
-    {
+        if (ch >= '0' && ch <= '9')
+        {
+            // Seed: keep at most 5 digits; if overflow, drop first digit then append new digit.
+            if (self->uiFocus_ == UiField::Seed)
+            {
+                // treat "-" as empty for digit collection
+                if (self->uiEdit_ == "-") self->uiEdit_.clear();
+
+                if (self->uiEdit_.size() < 4)
+                {
+                    self->uiEdit_.push_back(ch);
+                }
+                else
+                {
+                    // remove first digit, append new digit (rolling)
+                    self->uiEdit_.erase(self->uiEdit_.begin());
+                    self->uiEdit_.push_back(ch);
+                }
+                return;
+            }
+
+            // Other fields: keep old behavior
+            if (self->uiEdit_.size() < 12) self->uiEdit_.push_back(ch);
+            return;
+        }
+
+        if (ch == '-')
+        {
+            if (self->uiEdit_.empty()) self->uiEdit_.push_back(ch);
+            return;
+        } });
+
+    glfwSetKeyCallback(win, [](GLFWwindow *w, int key, int /*scancode*/, int action, int /*mods*/)
+                       {
         auto* self = static_cast<MazeViewer*>(glfwGetWindowUserPointer(w));
         if (!self) return;
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
@@ -78,17 +126,16 @@ void MazeViewer::initUiCallbacks_()
         }
 
         if (key == GLFW_KEY_B) {
-            self->requestBuild_(UiIndexToType_(self->uiTypeIndex_), self->uiSeed_);
+            self->requestBuild_(MazeType::Medium, self->uiSeed_);
             return;
         }
         if (key == GLFW_KEY_F) {
-            self->requestFindPath_(self->uiStartX_, self->uiStartY_, self->uiEndX_, self->uiEndY_);
-            return;
-        }
-    });
+    self->requestFindPath_(self->uiStartX_, self->uiStartY_, self->uiEndX_, self->uiEndY_, self->uiAlgoIndex_);
+    return;
+} });
 
-    glfwSetMouseButtonCallback(win, [](GLFWwindow* w, int button, int action, int /*mods*/)
-    {
+    glfwSetMouseButtonCallback(win, [](GLFWwindow *w, int button, int action, int /*mods*/)
+                               {
         auto* self = static_cast<MazeViewer*>(glfwGetWindowUserPointer(w));
         if (!self) return;
         if (button != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS) return;
@@ -106,6 +153,7 @@ void MazeViewer::initUiCallbacks_()
 
         // ---- match ui.cpp layout
         const float panelX0 = -1.0f;
+        const float panelY0 = -1.0f;
 
         const float sidePx = (self->fbW_ > 0 && self->fbH_ > 0) ? (float)std::min(self->fbW_, self->fbH_) : 0.0f;
         const float splitX = (self->fbW_ > 0) ? (1.0f - 2.0f * (sidePx / (float)self->fbW_)) : -0.25f;
@@ -118,34 +166,33 @@ void MazeViewer::initUiCallbacks_()
         const float contentX0 = panelX0 + padX;
         const float contentX1 = panelX1 - padX;
 
+        // Row 1: BUILD button (must match ui.cpp)
         const float availW = std::max(0.01f, contentX1 - contentX0);
-        float sq = (availW - gap * 3.0f) / 4.0f;
-        sq = std::min(sq, 0.22f);
-        sq = std::max(sq, 0.08f);
+        float buildH = std::min(0.22f, std::max(0.10f, availW * 0.22f));
 
         const float yTop = 1.0f - padY;
+        const float buildY1 = yTop;
+        const float buildY0 = buildY1 - buildH;
 
-        const float sizeY1 = yTop;
-        const float sizeY0 = sizeY1 - sq;
-
-        // Row 1: size buttons (also triggers build)
-        for (int i = 0; i < 4; ++i)
+        if (Hit_(mx, my, contentX0, buildY0, contentX1, buildY1))
         {
-            const float x0 = contentX0 + i * (sq + gap);
-            const float x1 = x0 + sq;
+            self->uiFocus_ = UiField::None;
+            self->uiEdit_.clear();
 
-            if (Hit_(mx, my, x0, sizeY0, x1, sizeY1))
-            {
-                self->uiTypeIndex_ = i;
-                self->requestBuild_(UiIndexToType_(i), self->uiSeed_);
-                self->updateWindowTitle_();
-                return;
-            }
+            self->requestBuild_(MazeType::Medium, self->uiSeed_);
+            self->updateWindowTitle_();
+            return;
         }
 
-        // Row 2: seed input
-        const float seedY1 = sizeY0 - gap;
+        // Row 2: SEED label + seed input (must match ui.cpp)
         const float seedH  = 0.14f;
+        const float seedLabelPix = 0.0080f;
+        const float seedLabelH   = 7.0f * seedLabelPix;
+
+        const float seedLabelY1 = buildY0 - gap;
+        const float seedLabelY0 = seedLabelY1 - seedLabelH;
+
+        const float seedY1 = seedLabelY0 - 0.012f;
         const float seedY0 = seedY1 - seedH;
 
         if (Hit_(mx, my, contentX0, seedY0, contentX1, seedY1))
@@ -156,13 +203,29 @@ void MazeViewer::initUiCallbacks_()
             return;
         }
 
-        // Row 3: start path button
-        const float goY1 = seedY0 - gap;
-        const float goH  = 0.14f;
-        const float goY0 = goY1 - goH;
+        // Bottom: 6 algorithm buttons (match ui.cpp)
+        struct AlgoBtn { const char* label; };
+        const AlgoBtn algos[6] = {
+            {"DFS"}, {"BFS"}, {"DIJKSTRA"}, {"A*"}, {"FLOYD"}, {"ALL"}
+        };
 
-        if (Hit_(mx, my, contentX0, goY0, contentX1, goY1))
+        const float btnH = 0.11f;
+        const float btnGap = 0.018f;
+        const float bottomY0 = panelY0 + padY;
+
+        for (int i = 0; i < 6; ++i)
         {
+            const float y0 = bottomY0 + i * (btnH + btnGap);
+            const float y1 = y0 + btnH;
+
+            if (!Hit_(mx, my, contentX0, y0, contentX1, y1))
+                continue;
+
+            // clear edit focus on click
+            self->uiFocus_ = UiField::None;
+            self->uiEdit_.clear();
+
+            // snapshot maze to get default start/end
             Maze snapshot{};
             {
                 std::lock_guard<std::mutex> lk(self->latestMazeMutex_);
@@ -182,10 +245,17 @@ void MazeViewer::initUiCallbacks_()
                 return;
             }
 
+            {
+                std::lock_guard<std::mutex> lk2(self->uiMsgMutex_);
+                self->uiLastMsg_ = std::string("Algorithm: ") + algos[i].label;
+            }
+
             const int sx = 1, sy = 1;
             const int ex = W - 2, ey = H - 2;
-            self->requestFindPath_(sx, sy, ex, ey);
+
+            // NOTE: PathFinder currently always uses DFSExploer inside.
+            // This click now *responds*; next step is to pass algo into PathFinder.
+            self->requestFindPath_(sx, sy, ex, ey, i);
             return;
-        }
-    });
+        } });
 }
