@@ -4,26 +4,23 @@
 
 class PathFinder
 {
-public:
-    struct Status
-    {
-        bool ok{false};
-        std::string message;
-        static Status Ok() { return {true, {}}; }
-        static Status Err(std::string m) { return {false, std::move(m)}; }
-    };
+    public:
+        static std::tuple<std::vector<Point>, int32_t, int32_t, std::chrono::milliseconds>
+        pathFinder(Maze maze);
+};
 
-    struct Result
-    {
-        int pathLen{-1};
-        int visited{0};
-        int foundAt{-1};
-    };
+class WallBreaker : public PathFinder
+{
+    public:
+        static std::tuple<std::vector<Point>, int32_t, int32_t, std::chrono::milliseconds>
+        BreakWalls(Maze maze, int32_t breakCount);
 
-    // Minimal unified entry; algoIndex: 0..6 (ALL=6)
-    static Status FindPath(Maze& inOutMaze,
-                           int sx, int sy, int ex, int ey,
-                           int algoIndex,
-                           std::atomic<bool>* cancel,
-                           Result* out);
+};
+
+class PathCounter : public PathFinder
+{
+    public:
+        static std::tuple<std::pair<std::vector<std::vector<Point>>, std::vector<int32_t>>, int32_t, std::chrono::milliseconds>
+        CountPaths(Maze maze, Point start, Point end);
+
 };
