@@ -6,7 +6,7 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I"/Users/butcher/Desktop/Maze Game/Maze-Game/include" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem "/Users/butcher/Desktop/Maze Game/Maze-Game/ThirdPart/Mac/include"
 
-CXX_FLAGSarm64 = -std=c++2b -arch arm64
+CXX_FLAGSarm64 = -g -std=c++2b -arch arm64 -fsanitize=address -fno-omit-frame-pointer -g
 
-CXX_FLAGS = -std=c++2b -arch arm64
+CXX_FLAGS = -g -std=c++2b -arch arm64 -fsanitize=address -fno-omit-frame-pointer -g
 

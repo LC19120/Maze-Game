@@ -21,6 +21,7 @@ CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o: /Users/butcher/Desktop/Maze\ Game
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -1094,6 +1095,7 @@ CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o: /Users/butcher/Desktop/Maze\ Gam
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -2144,7 +2146,8 @@ CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o: /Users/butcher/Desktop/Maze\ Gam
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/DataStruct.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp
 
 CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/maze_render.cpp \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
@@ -2166,6 +2169,7 @@ CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o: /Users/butcher/Desktop/Maz
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -3216,7 +3220,8 @@ CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o: /Users/butcher/Desktop/Maz
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/DataStruct.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp
 
 CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/ui.cpp \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
@@ -3238,6 +3243,7 @@ CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o: /Users/butcher/Desktop/Maze\ Game/M
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -4288,7 +4294,8 @@ CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o: /Users/butcher/Desktop/Maze\ Game/M
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/DataStruct.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp
 
 CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/Viewer/window_gl.cpp \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
@@ -4310,6 +4317,7 @@ CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o: /Users/butcher/Desktop/Maze\
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -5360,7 +5368,8 @@ CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o: /Users/butcher/Desktop/Maze\
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/DataStruct.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp
 
 CMakeFiles/MazeCore.dir/src/app.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
@@ -5382,6 +5391,7 @@ CMakeFiles/MazeCore.dir/src/app.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-Ga
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -6451,6 +6461,7 @@ CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o: /Users/butcher/Desktop/Maze\
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -7518,6 +7529,7 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -9634,6 +9646,8 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__cstddef/ptrdiff_t.h:
 
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__concepts/same_as.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__configuration/platform.h:
@@ -10226,14 +10240,6 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__ranges/enable_view.h:
 
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/ios.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sample.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_locale.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_partition_point.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_wctrans_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wchar.h:
@@ -10392,6 +10398,10 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/queue.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sample.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/ios.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__atomic/atomic_lock_free.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__mbstate_t.h:
@@ -10441,6 +10451,14 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_int8_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_out_out_result.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sort.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/shared_ptr.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_in_result.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_callable.h:
 
@@ -10506,6 +10524,10 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/mem_fn.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_partition_point.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_locale.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_ino_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iomanip:
@@ -10563,14 +10585,6 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/alloca.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_ends_with.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sort.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/shared_ptr.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_in_result.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__math/error_functions.h:
 
@@ -10672,6 +10686,8 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_bounds.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_next_permutation.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/find.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__string/extern_template_lists.h:
@@ -10705,8 +10721,6 @@ CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: /Users/butcher/Desktop/Maze\ 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/memory.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/none_of.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_next_permutation.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int8_t.h:
 

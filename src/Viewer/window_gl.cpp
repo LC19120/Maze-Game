@@ -2,6 +2,7 @@
 #include "Viewer/ViewerInternal.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 static GLuint CompileShader_(GLenum type, const char* src)
 {
@@ -42,12 +43,19 @@ static GLuint LinkProgram_(GLuint vs, GLuint fs)
     return prog;
 }
 
-static void FramebufferSizeCallback_(GLFWwindow* /*w*/, int width, int height)
+static void FramebufferSizeCallback_(GLFWwindow* w, int width, int height)
 {
-    glViewport(0, 0, width, height);
+    const int W = std::max(1, width);
+    const int H = std::max(1, height);
+
+    // IMPORTANT:
+    // Do NOT call any gl* here. This callback can fire before gladLoadGLLoader(),
+    // and GL functions are null -> pc=0 crash.
+    if (auto* self = static_cast<Viewer*>(glfwGetWindowUserPointer(w)))
+        self->onFramebufferResized(W, H);
 }
 
-void MazeViewer::initWindowAndGL_()
+void Viewer::initWindowAndGL()
 {
     if (!glfwInit())
         throw std::runtime_error("glfwInit failed");
@@ -59,11 +67,10 @@ void MazeViewer::initWindowAndGL_()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 #endif
 
-    // optional: set a 12:9 initial size (4:3)
-    fbW_ = 900;
-    fbH_ = 600;
+    fbW = 900;
+    fbH = 600;
 
-    GLFWwindow* win = glfwCreateWindow(fbW_, fbH_, "Maze Viewer", nullptr, nullptr);
+    GLFWwindow* win = glfwCreateWindow(fbW, fbH, "Maze Viewer", nullptr, nullptr);
     if (!win)
     {
         glfwTerminate();
@@ -72,18 +79,25 @@ void MazeViewer::initWindowAndGL_()
 
     glfwSetWindowAspectRatio(win, 3, 2);
 
-    window_ = win;
+    window = win;
     glfwMakeContextCurrent(win);
     glfwSwapInterval(1);
+
+    glfwSetWindowUserPointer(win, this);
     glfwSetFramebufferSizeCallback(win, FramebufferSizeCallback_);
+    int initW = 1, initH = 1;
+    glfwGetFramebufferSize(win, &initW, &initH);
+    onFramebufferResized(initW, initH);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         glfwDestroyWindow(win);
-        window_ = nullptr;
+        window = nullptr;
         glfwTerminate();
         throw std::runtime_error("gladLoadGLLoader failed");
     }
+
+    glViewport(0, 0, fbW, fbH);
 
     const char* vsSrc = R"GLSL(
         #version 330 core
@@ -114,59 +128,65 @@ void MazeViewer::initWindowAndGL_()
         throw std::runtime_error("Shader compile failed");
     }
 
-    program_ = LinkProgram_(vs, fs);
+    program = LinkProgram_(vs, fs);
     glDeleteShader(vs);
     glDeleteShader(fs);
-    if (!program_)
+    if (!program)
         throw std::runtime_error("Program link failed");
 
-    // +++ enable alpha blending
+    // +++ add: create VAO/VBO for maze and UI, and set vertex layout (pos2 + color4)
+    auto setupStream = [](GLuint& outVao, GLuint& outVbo)
+    {
+        glGenVertexArrays(1, &outVao);
+        glBindVertexArray(outVao);
+
+        glGenBuffers(1, &outVbo);
+        glBindBuffer(GL_ARRAY_BUFFER, outVbo);
+
+        // location 0: vec2 aPos
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(
+            0, 2, GL_FLOAT, GL_FALSE,
+            sizeof(Vertex),
+            (void*)offsetof(Vertex, x));
+
+        // location 1: vec4 aColor
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(
+            1, 4, GL_FLOAT, GL_FALSE,
+            sizeof(Vertex),
+            (void*)offsetof(Vertex, r));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    };
+
+    setupStream(vao, vbo);
+    setupStream(uiVao, uiVbo);
+    // --- add
+
+    // enable alpha blending (safe now)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // --- enable alpha blending
 
-    // Maze VAO/VBO
-    glGenVertexArrays(1, &vao_);
-    glGenBuffers(1, &vbo_);
-    glBindVertexArray(vao_);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r)); // +++ 4 floats
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    // UI VAO/VBO
-    glGenVertexArrays(1, &uiVao_);
-    glGenBuffers(1, &uiVbo_);
-    glBindVertexArray(uiVao_);
-    glBindBuffer(GL_ARRAY_BUFFER, uiVbo_);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r)); // +++ 4 floats
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    initUiCallbacks_();
-    updateWindowTitle_();
+    initUiCallbacks();
+    updateWindowTitle();
 }
 
-void MazeViewer::shutdownGL_()
+void Viewer::shutdownGL()
 {
-    if (program_) { glDeleteProgram(program_); program_ = 0; }
+    if (program) { glDeleteProgram(program); program = 0; }
 
-    if (vbo_) { glDeleteBuffers(1, &vbo_); vbo_ = 0; }
-    if (vao_) { glDeleteVertexArrays(1, &vao_); vao_ = 0; }
+    if (vbo) { glDeleteBuffers(1, &vbo); vbo = 0; }
+    if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
 
-    if (uiVbo_) { glDeleteBuffers(1, &uiVbo_); uiVbo_ = 0; }
-    if (uiVao_) { glDeleteVertexArrays(1, &uiVao_); uiVao_ = 0; }
+    if (uiVbo) { glDeleteBuffers(1, &uiVbo); uiVbo = 0; }
+    if (uiVao) { glDeleteVertexArrays(1, &uiVao); uiVao = 0; }
 
-    if (window_)
+    if (window)
     {
-        glfwDestroyWindow(static_cast<GLFWwindow*>(window_));
-        window_ = nullptr;
+        glfwDestroyWindow(static_cast<GLFWwindow*>(window));
+        window = nullptr;
         glfwTerminate();
     }
 }

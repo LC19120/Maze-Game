@@ -6,6 +6,6 @@
 
 void runApp()
 {
-    auto& viewer = MazeViewer::getInstance();
+    auto& viewer = Viewer::getInstance();
     viewer.run();
 }

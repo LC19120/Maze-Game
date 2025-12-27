@@ -5,7 +5,6 @@
 Maze MazeBuilder::Build(int seed)
 {
     const int32_t SIZE = 71;
-    const int MAX_BRANCHES = 10;
 
     Maze maze;
     maze.seed = seed;

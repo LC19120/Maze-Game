@@ -1,4 +1,5 @@
 CMakeFiles/MazeGame.dir/src/main.cpp.o: \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/main.cpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/vector \
@@ -1062,9 +1063,4 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_ends_with.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_starts_with.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_find_last.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_fold.h \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/DataStruct.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_fold.h

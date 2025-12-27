@@ -4,139 +4,128 @@
 #include <algorithm>
 #include <sstream>
 
-void MazeViewer::applyEdit_()
+void Viewer::applyEdit()
 {
     auto parseInt = [&](int &dst)
     {
-        if (uiEdit_.empty() || uiEdit_ == "-")
+        if (uiEdit.empty() || uiEdit == "-")
             return;
-        try
-        {
-            dst = std::stoi(uiEdit_);
-        }
-        catch (...)
-        {
-        }
+        try { dst = std::stoi(uiEdit); }
+        catch (...) {}
     };
 
-    switch (uiFocus_)
+    switch (uiFocus)
     {
-    case UiField::Seed:
-        parseInt(uiSeed_);
+    case UI::Seed:        parseInt(uiSeed); break;
+
+    // +++ add
+    case UI::BreakCount:
+        parseInt(uiBreakCount);
+        uiBreakCount = std::clamp(uiBreakCount, 0, 99);
         break;
-    case UiField::StartX:
-        parseInt(uiStartX_);
-        break;
-    case UiField::StartY:
-        parseInt(uiStartY_);
-        break;
-    case UiField::EndX:
-        parseInt(uiEndX_);
-        break;
-    case UiField::EndY:
-        parseInt(uiEndY_);
-        break;
-    case UiField::UpdateEvery:
-        parseInt(uiUpdateEvery_);
-        break;
-    case UiField::DelayMs:
-        parseInt(uiDelayMs_);
-        break;
-    default:
-        break;
+    // --- add
+
+    case UI::StartX:      parseInt(uiStartX);      break;
+    case UI::StartY:      parseInt(uiStartY);      break;
+    case UI::EndX:        parseInt(uiEndX);        break;
+    case UI::EndY:        parseInt(uiEndY);        break;
+    case UI::UpdateEvery: parseInt(uiUpdateEvery); break;
+    case UI::DelayMs:     parseInt(uiDelayMs);     break;
+    default: break;
     }
 }
 
-void MazeViewer::initUiCallbacks_()
+void Viewer::initUiCallbacks()
 {
-    GLFWwindow *win = static_cast<GLFWwindow *>(window_);
+    GLFWwindow *win = static_cast<GLFWwindow *>(window);
     glfwSetWindowUserPointer(win, this);
 
     glfwSetCharCallback(win, [](GLFWwindow *w, unsigned int codepoint)
-                        {
-        auto* self = static_cast<MazeViewer*>(glfwGetWindowUserPointer(w));
+    {
+        auto* self = static_cast<Viewer*>(glfwGetWindowUserPointer(w));
         if (!self) return;
-        if (self->uiFocus_ == UiField::None) return;
+        if (self->uiFocus == UI::None) return;
 
         if (codepoint > 127) return;
         const char ch = (char)codepoint;
 
         if (ch >= '0' && ch <= '9')
         {
-            // Seed: keep at most 5 digits; if overflow, drop first digit then append new digit.
-            if (self->uiFocus_ == UiField::Seed)
+            // Seed: at most 4 digits (rolling)
+            if (self->uiFocus == UI::Seed)
             {
-                // treat "-" as empty for digit collection
-                if (self->uiEdit_ == "-") self->uiEdit_.clear();
+                if (self->uiEdit == "-") self->uiEdit.clear();
 
-                if (self->uiEdit_.size() < 4)
-                {
-                    self->uiEdit_.push_back(ch);
-                }
-                else
-                {
-                    // remove first digit, append new digit (rolling)
-                    self->uiEdit_.erase(self->uiEdit_.begin());
-                    self->uiEdit_.push_back(ch);
-                }
+                if (self->uiEdit.size() < 4) self->uiEdit.push_back(ch);
+                else { self->uiEdit.erase(self->uiEdit.begin()); self->uiEdit.push_back(ch); }
                 return;
             }
 
-            // Other fields: keep old behavior
-            if (self->uiEdit_.size() < 12) self->uiEdit_.push_back(ch);
+            // +++ BreakCount: exactly up to 2 digits
+            if (self->uiFocus == UI::BreakCount)
+            {
+                if (self->uiEdit == "-") self->uiEdit.clear();
+
+                if (self->uiEdit.size() < 2) self->uiEdit.push_back(ch);
+                else { self->uiEdit.erase(self->uiEdit.begin()); self->uiEdit.push_back(ch); }
+                return;
+            }
+            // --- add
+
+            if (self->uiEdit.size() < 12) self->uiEdit.push_back(ch);
             return;
         }
 
         if (ch == '-')
         {
-            if (self->uiEdit_.empty()) self->uiEdit_.push_back(ch);
+            // +++ BreakCount 不允许负数
+            if (self->uiFocus == UI::BreakCount) return;
+            // --- add
+
+            if (self->uiEdit.empty()) self->uiEdit.push_back(ch);
             return;
-        } });
+        }
+    });
 
     glfwSetKeyCallback(win, [](GLFWwindow *w, int key, int /*scancode*/, int action, int /*mods*/)
                        {
-        auto* self = static_cast<MazeViewer*>(glfwGetWindowUserPointer(w));
+        auto* self = static_cast<Viewer*>(glfwGetWindowUserPointer(w));
         if (!self) return;
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
         if (key == GLFW_KEY_ESCAPE)
         {
-            self->cancelWork_();
-            self->uiFocus_ = UiField::None;
-            self->uiEdit_.clear();
-            {
-                std::lock_guard<std::mutex> lk(self->uiMsgMutex_);
-                self->uiLastMsg_ = "Cancelled.";
-            }
-            self->updateWindowTitle_();
+            self->uiFocus = UI::None;
+            self->uiEdit.clear();
+            self->updateWindowTitle();
             return;
         }
 
-        if (self->uiFocus_ != UiField::None)
+        if (self->uiFocus != UI::None)
         {
             if (key == GLFW_KEY_BACKSPACE) {
-                if (!self->uiEdit_.empty()) self->uiEdit_.pop_back();
+                if (!self->uiEdit.empty()) self->uiEdit.pop_back();
             } else if (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) {
-                self->applyEdit_();
-                self->uiFocus_ = UiField::None;
-                self->uiEdit_.clear();
-                self->updateWindowTitle_();
+                self->applyEdit();
+                self->uiFocus = UI::None;
+                self->uiEdit.clear();
+                self->updateWindowTitle();
             }
             return;
         }
 
         if (key == GLFW_KEY_B) {
-            self->requestBuild_(self->uiSeed_);
+            self->buildMaze(self->uiSeed);
             return;
         }
         if (key == GLFW_KEY_F) {
-    self->requestFindPath_(self->uiStartX_, self->uiStartY_, self->uiEndX_, self->uiEndY_, self->uiAlgoIndex_);
+    self->findPath(self->uiStartX, self->uiStartY, self->uiEndX, self->uiEndY, self->uiAlgoIndex);
     return;
 } });
 
     glfwSetMouseButtonCallback(win, [](GLFWwindow *w, int button, int action, int /*mods*/)
-                               {
-        auto* self = static_cast<MazeViewer*>(glfwGetWindowUserPointer(w));
+    {
+        auto* self = static_cast<Viewer*>(glfwGetWindowUserPointer(w));
         if (!self) return;
         if (button != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS) return;
 
@@ -167,8 +156,8 @@ void MazeViewer::initUiCallbacks_()
         const float panelX0 = -1.0f;
         const float panelY0 = -1.0f;
 
-        const float sidePx = (self->fbW_ > 0 && self->fbH_ > 0) ? (float)std::min(self->fbW_, self->fbH_) : 0.0f;
-        const float splitX = (self->fbW_ > 0) ? (1.0f - 2.0f * (sidePx / (float)self->fbW_)) : -0.25f;
+        const float sidePx = (self->fbW > 0 && self->fbH > 0) ? (float)std::min(self->fbW, self->fbH) : 0.0f;
+        const float splitX = (self->fbW > 0) ? (1.0f - 2.0f * (sidePx / (float)self->fbW)) : -0.25f;
         const float panelX1 = splitX;
 
         const float padX = 0.05f;
@@ -188,15 +177,14 @@ void MazeViewer::initUiCallbacks_()
 
         if (Hit_(mx, my, contentX0, buildY0, contentX1, buildY1))
         {
-            self->uiFocus_ = UiField::None;
-            self->uiEdit_.clear();
-
-            self->requestBuild_(self->uiSeed_);
-            self->updateWindowTitle_();
+            self->uiFocus = UI::None;
+            self->uiEdit.clear();
+            self->buildMaze(self->uiSeed);
+            self->updateWindowTitle();
             return;
         }
 
-        // Row 2: SEED label + seed input (must match ui.cpp)
+        // Row 2: SEED input (must match ui.cpp)
         const float seedH  = 0.14f;
         const float seedLabelPix = 0.0080f;
         const float seedLabelH   = 7.0f * seedLabelPix;
@@ -209,63 +197,88 @@ void MazeViewer::initUiCallbacks_()
 
         if (Hit_(mx, my, contentX0, seedY0, contentX1, seedY1))
         {
-            self->uiFocus_ = UiField::Seed;
-            self->uiEdit_ = std::to_string(self->uiSeed_);
-            self->updateWindowTitle_();
+            self->uiFocus = UI::Seed;
+            self->uiEdit = std::to_string(self->uiSeed);
+            self->updateWindowTitle();
             return;
         }
 
-        // Bottom: 7 algorithm buttons (match ui.cpp)
-        struct AlgoBtn { const char* label; };
-        const AlgoBtn algos[7] = {
-            {"DFS"}, {"BFS"}, {"BFS+"}, {"DIJKSTRA"}, {"A*"}, {"FLOYD"}, {"ALL"}
-        };
-
+        // Bottom: 3 buttons (match ui.cpp)
         const float btnH = 0.11f;
         const float btnGap = 0.018f;
         const float bottomY0 = panelY0 + padY;
 
-        for (int i = 0; i < 7; ++i) // was 6
+        // Row 0: PATH
         {
-            const float y0 = bottomY0 + i * (btnH + btnGap);
+            const float y0 = bottomY0 + 0 * (btnH + btnGap);
+            const float y1 = y0 + btnH;
+            if (Hit_(mx, my, contentX0, y0, contentX1, y1))
+            {
+                self->uiFocus = UI::None;
+                self->uiEdit.clear();
+
+                int W = 71, H = 71;
+                if (self->mazeLoaded && !self->maze.grid.empty() && !self->maze.grid[0].empty())
+                { H = (int)self->maze.grid.size(); W = (int)self->maze.grid[0].size(); }
+
+                self->findPath(1, 1, std::max(1, W - 2), std::max(1, H - 2), 0);
+                return;
+            }
+        }
+
+        // Row 1: BREAK + [breakCount box]
+        {
+            const float y0 = bottomY0 + 1 * (btnH + btnGap);
             const float y1 = y0 + btnH;
 
-            if (!Hit_(mx, my, contentX0, y0, contentX1, y1))
-                continue;
+            const float boxW = btnH;          // square
+            const float boxGap = 0.012f;
+            const float boxX0 = contentX1 - boxW;
+            const float boxX1 = contentX1;
+            const float btnX0 = contentX0;
+            const float btnX1 = boxX0 - boxGap;
 
-            self->uiFocus_ = UiField::None;
-            self->uiEdit_.clear();
-
-            Maze snapshot{};
+            // click on breakCount input box
+            if (Hit_(mx, my, boxX0, y0, boxX1, y1))
             {
-                std::lock_guard<std::mutex> lk(self->latestMazeMutex_);
-                if (!self->hasMaze_) {
-                    std::lock_guard<std::mutex> lk2(self->uiMsgMutex_);
-                    self->uiLastMsg_ = "No maze yet. Click BUILD first.";
-                    return;
-                }
-                snapshot = self->latestMaze_;
-            }
-
-            const int H = (int)snapshot.grid.size();
-            const int W = (H > 0) ? (int)snapshot.grid[0].size() : 0;
-            if (W <= 2 || H <= 2) {
-                std::lock_guard<std::mutex> lk2(self->uiMsgMutex_);
-                self->uiLastMsg_ = "Maze too small.";
+                self->uiFocus = UI::BreakCount;
+                self->uiEdit = std::to_string(std::clamp(self->uiBreakCount, 0, 99));
+                self->updateWindowTitle();
                 return;
             }
 
+            // click on BREAK button
+            if (Hit_(mx, my, btnX0, y0, btnX1, y1))
             {
-                std::lock_guard<std::mutex> lk2(self->uiMsgMutex_);
-                self->uiLastMsg_ = std::string("Algorithm: ") + algos[i].label;
+                self->uiFocus = UI::None;
+                self->uiEdit.clear();
+
+                int W = 71, H = 71;
+                if (self->mazeLoaded && !self->maze.grid.empty() && !self->maze.grid[0].empty())
+                { H = (int)self->maze.grid.size(); W = (int)self->maze.grid[0].size(); }
+
+                self->findPath(1, 1, std::max(1, W - 2), std::max(1, H - 2), 1);
+                return;
             }
+        }
 
-            const int sx = 1, sy = 1;
-            const int ex = W - 2, ey = H - 2;
+        // Row 2: COUNT (PathCounter)
+        {
+            const float y0 = bottomY0 + 2 * (btnH + btnGap);
+            const float y1 = y0 + btnH;
 
-            // NOTE: PathFinder currently always uses DFSExploer inside.
-            // This click now *responds*; next step is to pass algo into PathFinder.
-            self->requestFindPath_(sx, sy, ex, ey, i);
-            return;
-        } });
+            if (Hit_(mx, my, contentX0, y0, contentX1, y1))
+            {
+                self->uiFocus = UI::None;
+                self->uiEdit.clear();
+
+                int W = 71, H = 71;
+                if (self->mazeLoaded && !self->maze.grid.empty() && !self->maze.grid[0].empty())
+                { H = (int)self->maze.grid.size(); W = (int)self->maze.grid[0].size(); }
+
+                self->findPath(1, 1, std::max(1, W - 2), std::max(1, H - 2), 2);
+                return;
+            }
+        }
+    });
 }

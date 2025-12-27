@@ -1,4 +1,5 @@
 CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o: \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/core/PathFinder.cpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp \
   /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \

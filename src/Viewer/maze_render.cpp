@@ -4,40 +4,36 @@
 #include <algorithm>
 
 // +++ add: missing definition (fix linker error)
-void MazeViewer::rebuildMeshIfDirty_()
+void Viewer::rebuildMeshIfDirty()
 {
     Maze local{};
     bool doRebuild = false;
 
-    {
-        std::lock_guard<std::mutex> lock(mazeMutex_);
+        const bool fbChanged = (meshBuiltFbW != fbW) || (meshBuiltFbH != fbH);
 
-        // 目前 mesh 构建不依赖 fb 尺寸也没关系；保留这个判断可支持你以后做布局时 resize 重建
-        const bool fbChanged = (meshBuiltFbW_ != fbW_) || (meshBuiltFbH_ != fbH_);
-
-        if (mazeLoaded_ && (mazeDirty_ || fbChanged))
+        if (mazeLoaded && (mazeDirty || fbChanged))
         {
-            local = maze_;
-            mazeDirty_ = false;
+            local = maze;
+            mazeDirty = false;
             doRebuild = true;
 
-            meshBuiltFbW_ = fbW_;
-            meshBuiltFbH_ = fbH_;
+            meshBuiltFbW = fbW;
+            meshBuiltFbH = fbH;
         }
-    }
+    
 
     if (doRebuild)
-        rebuildMeshFromMaze_(local);
+        rebuildMeshFromMaze(local);
 }
 // --- add
 
-void MazeViewer::rebuildMeshFromMaze_(const Maze& m)
+void Viewer::rebuildMeshFromMaze(const Maze& m)
 {
     const auto& grid = m.grid;
     const int rows = (int)grid.size();
-    if (rows <= 0) { vertexCount_ = 0; return; }
+    if (rows <= 0) { vertexCount = 0; return; }
     const int cols = (int)grid[0].size();
-    if (cols <= 0) { vertexCount_ = 0; return; }
+    if (cols <= 0) { vertexCount = 0; return; }
 
     std::vector<Vertex> verts;
     verts.reserve((size_t)rows * (size_t)cols * 6);
@@ -108,33 +104,33 @@ void MazeViewer::rebuildMeshFromMaze_(const Maze& m)
         }
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size() * sizeof(Vertex)), verts.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    vertexCount_ = (int)verts.size();
+    vertexCount = (int)verts.size();
 }
 
-void MazeViewer::drawMaze_()
+void Viewer::drawMaze()
 {
-    rebuildMeshIfDirty_();
+    rebuildMeshIfDirty();
 
-    if (vertexCount_ <= 0) return;
+    if (vertexCount <= 0) return;
 
     // Draw maze into a square pixel viewport on the RIGHT side:
     // [fbW - sidePx, 0, sidePx, sidePx]
-    const int sidePx = std::min(fbW_, fbH_);
-    const int vpX = std::max(0, fbW_ - sidePx);
+    const int sidePx = std::min(fbW, fbH);
+    const int vpX = std::max(0, fbW - sidePx);
     const int vpY = 0;
 
     glViewport(vpX, vpY, sidePx, sidePx);
 
-    glUseProgram(program_);
-    glBindVertexArray(vao_);
-    glDrawArrays(GL_TRIANGLES, 0, vertexCount_);
+    glUseProgram(program);
+    glBindVertexArray(vao);
+    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     glBindVertexArray(0);
     glUseProgram(0);
 
     // Restore full viewport for UI rendering
-    glViewport(0, 0, fbW_, fbH_);
+    glViewport(0, 0, fbW, fbH);
 }

@@ -1,8 +1,9 @@
 #include "core/Common.hpp"
-#include "app.cpp"
 
+void runApp();
 
-int main() {
+int main()
+{
     runApp();
     return 0;
 }

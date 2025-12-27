@@ -21,6 +21,7 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -1064,19 +1065,8 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_time.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wchar.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wctype.h \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/DataStruct.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp \
-  /Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp
+  /Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/Common.hpp
 
-
-/Users/butcher/Desktop/Maze\ Game/Maze-Game/src/app.cpp:
-
-/Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/PathFinder.hpp:
-
-/Users/butcher/Desktop/Maze\ Game/Maze-Game/include/Viewer/core.hpp:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_string.h:
 
@@ -1608,8 +1598,6 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/has_virtual_destructor.h:
 
-/Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/MazeBuilder.hpp:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_constant_evaluated.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/equal_range.h:
@@ -2098,8 +2086,6 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__exception/exception_ptr.h:
 
-/Users/butcher/Desktop/Maze\ Game/Maze-Game/include/core/DataStruct.hpp:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__mdspan/layout_right.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_push_heap.h:
@@ -2125,6 +2111,8 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___va_copy.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__cstddef/ptrdiff_t.h:
+
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__concepts/same_as.h:
 
@@ -2708,14 +2696,6 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__ranges/enable_view.h:
 
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/ios.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sample.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_locale.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_partition_point.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_wctrans_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wchar.h:
@@ -2872,6 +2852,10 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/queue.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sample.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/ios.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__atomic/atomic_lock_free.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__mbstate_t.h:
@@ -2921,6 +2905,14 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_int8_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_out_out_result.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sort.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/shared_ptr.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_in_result.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_callable.h:
 
@@ -2985,6 +2977,10 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/streambuf:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/mem_fn.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_partition_point.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_locale.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/count.h:
 
@@ -3055,14 +3051,6 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/alloca.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_ends_with.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sort.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/shared_ptr.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_in_result.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__math/error_functions.h:
 
@@ -3162,6 +3150,8 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_bounds.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_next_permutation.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/find.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__string/extern_template_lists.h:
@@ -3193,8 +3183,6 @@ CMakeFiles/MazeGame.dir/src/main.cpp.o: /Users/butcher/Desktop/Maze\ Game/Maze-G
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/memory.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/none_of.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_next_permutation.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int8_t.h:
 
