@@ -186,7 +186,7 @@ std::tuple<std::pair<std::vector<std::vector<Point>>, std::vector<int32_t>>, int
 PathCounter::CountPaths(Maze maze, Point start, Point end)
 {
     //多路径计数
-    auto startTime = std::chrono::high_resolution_clock::now();
+     auto startTime = std::chrono::high_resolution_clock::now();
 
     std::vector<std::vector<Point>> allPaths;
     std::vector<int32_t> lengths;
@@ -203,12 +203,22 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
     const int dx[4] = { 1, -1, 0, 0 };
     const int dy[4] = { 0, 0, 1, -1 };
 
+    // 点访问标记：防止节点重复（防自环）
     std::vector<std::vector<bool>> visited(
         maze.height, std::vector<bool>(maze.width, false));
 
+    // 边访问标记：防止路径层面的环
+    std::set<std::pair<int, int>> usedEdges;
+
+    // 无向边唯一 key
+    auto edgeKey = [&](Point a, Point b) {
+        int k1 = a.y * maze.width + a.x;
+        int k2 = b.y * maze.width + b.x;
+        return std::minmax(k1, k2);
+    };
+
     std::function<void(Point)> dfs = [&](Point p)
     {
-        // 进入节点
         current.push_back(p);
         visited[p.y][p.x] = true;
 
@@ -228,11 +238,15 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
                 if (maze.IsWall(nx, ny)) continue;
                 if (visited[ny][nx]) continue;
 
+                auto e = edgeKey(p, { nx, ny });
+                if (usedEdges.count(e)) continue;  // ⭐ 防止成环
+
+                usedEdges.insert(e);
                 dfs({ nx, ny });
+                usedEdges.erase(e);
             }
         }
 
-        // 回溯
         visited[p.y][p.x] = false;
         current.pop_back();
     };
@@ -247,5 +261,6 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
         { allPaths, lengths },
         static_cast<int32_t>(allPaths.size()),
         duration
-    }; 
+    };
 }
+
