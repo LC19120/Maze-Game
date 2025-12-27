@@ -4,7 +4,7 @@
 #include <algorithm>
 Maze MazeBuilder::Build(int seed)
 {
-    const int32_t SIZE = 71;
+    const int32_t SIZE = 41;
 
     Maze maze;
     maze.seed = seed;

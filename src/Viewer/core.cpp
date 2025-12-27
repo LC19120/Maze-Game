@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <cmath> // +++ add for std::floor
 
 Viewer& Viewer::getInstance()
 {
@@ -27,13 +28,75 @@ void Viewer::tickPathAnim_()
     if (maze.grid.empty() || maze.grid[0].empty()) { anim.active = false; return; }
 
     constexpr auto TOTAL = std::chrono::milliseconds(3000);
-    constexpr float VIS_PHASE = 0.70f; // 70% visited, 30% path
 
     const auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - anim.t0);
     if (elapsed < std::chrono::milliseconds(0)) elapsed = std::chrono::milliseconds(0);
     if (elapsed > TOTAL) elapsed = TOTAL;
 
+    const int H = (int)maze.grid.size();
+    const int W = (int)maze.grid[0].size();
+
+    // ---- MODE 1: COUNT overlay animation (3s for all paths)
+    if (anim.mode == 1)
+    {
+        if (anim.totalPaths <= 0 || anim.allPaths.empty())
+        {
+            anim.active = false;
+            alphaOverrideActive = false;
+            cellAlphaOverride.clear();
+            return;
+        }
+
+        const double t = (TOTAL.count() > 0) ? (double)elapsed.count() / (double)TOTAL.count() : 1.0;
+        size_t k = (size_t)std::floor(t * (double)anim.totalPaths);
+        if (k > (size_t)anim.totalPaths) k = (size_t)anim.totalPaths;
+
+        // first tick init buffers (size W*H)
+        const size_t N = (size_t)W * (size_t)H;
+        if (anim.passCount.size() != N) anim.passCount.assign(N, 0);
+        if (cellAlphaOverride.size() != N) cellAlphaOverride.assign(N, 0.0f);
+        alphaOverrideActive = true;
+
+        // apply newly revealed paths incrementally
+        if (k > anim.lastK)
+        {
+            for (size_t i = anim.lastK; i < k; ++i)
+            {
+                if (i >= anim.allPaths.size()) break;
+                for (const auto& p : anim.allPaths[i])
+                {
+                    if (!maze.InBounds(p.x, p.y)) continue;
+                    if (maze.grid[p.y][p.x] == 1) continue; // don't paint walls
+
+                    const size_t idx = (size_t)p.y * (size_t)W + (size_t)p.x;
+                    int32_t cnt = ++anim.passCount[idx];
+
+                    // each path contributes 1/totalPaths, overlap accumulates
+                    float a = (float)cnt / (float)anim.totalPaths;
+                    if (a > 1.0f) a = 1.0f;
+
+                    cellAlphaOverride[idx] = a;
+                    maze.grid[p.y][p.x] = 6; // COUNT button color
+                }
+            }
+
+            anim.lastK = k;
+            mazeDirty = true;
+        }
+
+        // keep endpoints visible
+        if (maze.InBounds(maze.start.x, maze.start.y)) maze.grid[maze.start.y][maze.start.x] = 27;
+        if (maze.InBounds(maze.end.x, maze.end.y))     maze.grid[maze.end.y][maze.end.x]     = 27;
+
+        if (elapsed == TOTAL)
+            anim.active = false;
+
+        return;
+    }
+
+    // ---- MODE 0: PATH/BREAK (existing visited->path split)
+    constexpr float VIS_PHASE = 0.70f; // 70% visited, 30% path
     const auto visEnd = std::chrono::milliseconds((int)(TOTAL.count() * VIS_PHASE));
     const auto pathSpan = TOTAL - visEnd;
 
@@ -42,16 +105,16 @@ void Viewer::tickPathAnim_()
 
     if (elapsed <= visEnd || pathSpan.count() <= 0)
     {
-        const double t = (visEnd.count() > 0) ? (double)elapsed.count() / (double)visEnd.count() : 1.0;
-        nVisited = (size_t)std::floor(t * (double)anim.visited.size());
+        const double tt = (visEnd.count() > 0) ? (double)elapsed.count() / (double)visEnd.count() : 1.0;
+        nVisited = (size_t)std::floor(tt * (double)anim.visited.size());
         nPath = 0;
     }
     else
     {
         nVisited = anim.visited.size();
         const auto pe = elapsed - visEnd;
-        const double t = (pathSpan.count() > 0) ? (double)pe.count() / (double)pathSpan.count() : 1.0;
-        nPath = (size_t)std::floor(t * (double)anim.path.size());
+        const double tt = (pathSpan.count() > 0) ? (double)pe.count() / (double)pathSpan.count() : 1.0;
+        nPath = (size_t)std::floor(tt * (double)anim.path.size());
     }
 
     nVisited = std::min(nVisited, anim.visited.size());
@@ -63,15 +126,12 @@ void Viewer::tickPathAnim_()
     anim.lastVisitedN = nVisited;
     anim.lastPathN = nPath;
 
-    const int H = (int)maze.grid.size();
-    const int W = (int)maze.grid[0].size();
-
     // clear non-walls
     for (int y = 0; y < H; ++y)
         for (int x = 0; x < W; ++x)
             if (maze.grid[y][x] != 1) maze.grid[y][x] = 0;
 
-    // paint visited (half alpha comes from maze_render.cpp via visitedVal mapping)
+    // paint visited
     for (size_t i = 0; i < nVisited; ++i)
     {
         const auto& p = anim.visited[i];
@@ -79,7 +139,7 @@ void Viewer::tickPathAnim_()
             maze.grid[p.y][p.x] = anim.visitedVal;
     }
 
-    // paint final shortest path (opaque)
+    // paint path
     for (size_t i = 0; i < nPath; ++i)
     {
         const auto& p = anim.path[i];
@@ -87,7 +147,6 @@ void Viewer::tickPathAnim_()
             maze.grid[p.y][p.x] = anim.pathVal;
     }
 
-    // start/end markers
     if (maze.InBounds(maze.start.x, maze.start.y)) maze.grid[maze.start.y][maze.start.x] = 27;
     if (maze.InBounds(maze.end.x, maze.end.y))     maze.grid[maze.end.y][maze.end.x]     = 27;
 
@@ -185,10 +244,42 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
     maze.width = W;
     maze.height = H;
 
-    // ensure endpoints are walkable
     if (maze.InBounds(sx, sy)) maze.grid[sy][sx] = 0;
     if (maze.InBounds(ex, ey)) maze.grid[ey][ex] = 0;
 
+    // reset alpha override unless COUNT starts it
+    alphaOverrideActive = false;
+    cellAlphaOverride.clear();
+
+    // COUNT: animate all paths as overlay
+    if (algoIndex == 2)
+    {
+        auto result = PathCounter::CountPaths(maze, maze.start, maze.end);
+        auto allPaths = std::move(std::get<0>(result).first);
+        const int32_t ways = std::get<1>(result);
+
+        // clear non-walls once
+        for (int y = 0; y < H; ++y)
+            for (int x = 0; x < W; ++x)
+                if (maze.grid[y][x] != 1) maze.grid[y][x] = 0;
+
+        if (maze.InBounds(maze.start.x, maze.start.y)) maze.grid[maze.start.y][maze.start.x] = 27;
+        if (maze.InBounds(maze.end.x, maze.end.y))     maze.grid[maze.end.y][maze.end.x]     = 27;
+
+        anim.active = true;
+        anim.mode = 1;
+        anim.t0 = std::chrono::steady_clock::now();
+        anim.allPaths = std::move(allPaths);
+        anim.totalPaths = std::max<int>(0, ways);
+        anim.lastK = 0;
+        anim.passCount.clear();
+
+        mazeDirty = true;
+        updateWindowTitle();
+        return;
+    }
+
+    // PATH / BREAK: existing animation
     std::vector<Point> path;
     std::vector<Point> visited;
 
@@ -198,9 +289,6 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
         auto result = WallBreaker::BreakWalls(maze, bc);
         path = std::get<0>(result);
         visited = std::get<1>(result);
-
-        // BREAK button color mapping in maze_render.cpp:
-        // path: 7, visited: 17
         anim.pathVal = 7;
         anim.visitedVal = 17;
     }
@@ -209,22 +297,18 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
         auto result = PathFinder::pathFinder(maze);
         path = std::get<0>(result);
         visited = std::get<1>(result);
-
-        // PATH button color mapping:
-        // path: 5, visited: 15
         anim.pathVal = 5;
         anim.visitedVal = 15;
     }
 
-    // start 3s animation playback
     anim.active = true;
+    anim.mode = 0;
     anim.t0 = std::chrono::steady_clock::now();
     anim.visited = std::move(visited);
     anim.path = std::move(path);
     anim.lastVisitedN = (size_t)-1;
     anim.lastPathN = (size_t)-1;
 
-    // start from clean view
     for (int y = 0; y < H; ++y)
         for (int x = 0; x < W; ++x)
             if (maze.grid[y][x] != 1) maze.grid[y][x] = 0;
