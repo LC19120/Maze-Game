@@ -21,10 +21,7 @@ class Viewer {
 public:
     static Viewer& getInstance();
     void run();
-
-    // +++ add: allow GLFW callback to update framebuffer size safely
     void onFramebufferResized(int width, int height);
-    // --- add
 
 private:
     Viewer();
@@ -49,6 +46,23 @@ private:
     // work
     void buildMaze(int seed);
     void findPath(int sx, int sy, int ex, int ey, int algoIndex);
+    void tickPathAnim_();
+
+    struct PathAnim
+    {
+        bool active = false;
+        std::chrono::steady_clock::time_point t0{};
+
+        std::vector<Point> visited;
+        std::vector<Point> path;
+
+        // which grid values to paint
+        int visitedVal = 15; // PATH visited (A*)
+        int pathVal    = 5;  // PATH path (A*)
+
+        size_t lastVisitedN = (size_t)-1;
+        size_t lastPathN    = (size_t)-1;
+    } anim;
 
 
 private:

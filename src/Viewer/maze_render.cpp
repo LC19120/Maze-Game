@@ -59,7 +59,7 @@ void Viewer::rebuildMeshFromMaze(const Maze& m)
     const float astR = 0.20f, astG = 0.55f, astB = 1.00f; // 5  A*
     const float floR = 0.65f, floG = 0.25f, floB = 0.95f; // 6  Floyd
 
-    const float visitedA = 0.28f;
+    const float visitedA = 0.50f; // was 0.28f
     const float opaqueA  = 1.00f;
 
     for (int r = 0; r < rows; ++r)
