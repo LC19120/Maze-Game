@@ -272,16 +272,78 @@ void Viewer::renderUi()
     {
         char* end = nullptr;
         const long v = std::strtol(uiEdit.c_str(), &end, 10);
-        if (end != uiEdit.c_str()) // parsed at least one digit
+        if (end != uiEdit.c_str())
             seedShown = (int)v;
     }
 
     PushInt7(ui, seedShown,
-              contentX0 + 0.02f, seedY0 + 0.02f,
-              (contentX1 - contentX0) - 0.04f, (seedY1 - seedY0) - 0.04f,
-              0.92f, 0.92f, 0.92f);
+             contentX0 + 0.02f, seedY0 + 0.02f,
+             (contentX1 - contentX0) - 0.04f, (seedY1 - seedY0) - 0.04f,
+             0.92f, 0.92f, 0.92f);
 
-    // ---- Bottom: PATH / BREAK[xx] / COUNT
+    // +++ add: X / Y input boxes under SEED (visual only, same style)
+    const float xyH = 0.12f;
+
+    const float xyLabelY1 = seedY0 - gap;
+    const float xyLabelY0 = xyLabelY1 - seedLabelH;
+
+    const float xyY1 = xyLabelY0 - 0.012f;
+    const float xyY0 = xyY1 - xyH;
+
+    const float xyGapX = 0.03f;
+    const float midX = (contentX0 + contentX1) * 0.5f;
+
+    const float xBoxX0 = contentX0;
+    const float xBoxX1 = midX - xyGapX * 0.5f;
+
+    const float yBoxX0 = midX + xyGapX * 0.5f;
+    const float yBoxX1 = contentX1;
+
+    // labels
+    PushText5x7_(ui, "X",
+                 xBoxX0, xyLabelY0,
+                 seedLabelPix, seedLabelPix,
+                 0.92f, 0.92f, 0.92f);
+    PushText5x7_(ui, "Y",
+                 yBoxX0, xyLabelY0,
+                 seedLabelPix, seedLabelPix,
+                 0.92f, 0.92f, 0.92f);
+
+    // boxes (focus highlight supported)
+    drawBox(xBoxX0, xyY0, xBoxX1, xyY1, uiFocus == UI::StartX);
+    drawBox(yBoxX0, xyY0, yBoxX1, xyY1, uiFocus == UI::StartY);
+
+    // numbers (preview like seed when focused)
+    int xShown = uiStartX;
+    int yShown = uiStartY;
+
+    if (uiFocus == UI::StartX && !uiEdit.empty())
+    {
+        char* end = nullptr;
+        const long v = std::strtol(uiEdit.c_str(), &end, 10);
+        if (end != uiEdit.c_str())
+            xShown = (int)v;
+    }
+    if (uiFocus == UI::StartY && !uiEdit.empty())
+    {
+        char* end = nullptr;
+        const long v = std::strtol(uiEdit.c_str(), &end, 10);
+        if (end != uiEdit.c_str())
+            yShown = (int)v;
+    }
+
+    PushInt7Tight(ui, xShown,
+                  xBoxX0 + 0.02f, xyY0 + 0.02f,
+                  (xBoxX1 - xBoxX0) - 0.04f, (xyY1 - xyY0) - 0.04f,
+                  0.92f, 0.92f, 0.92f);
+
+    PushInt7Tight(ui, yShown,
+                  yBoxX0 + 0.02f, xyY0 + 0.02f,
+                  (yBoxX1 - yBoxX0) - 0.04f, (xyY1 - xyY0) - 0.04f,
+                  0.92f, 0.92f, 0.92f);
+    // --- add
+
+    // ---- Bottom: PATH / BREAK[...] / COUNT
     const float btnH = 0.11f;
     const float btnGap = 0.018f;
     const float bottomY0 = panelY0 + padY;
@@ -323,7 +385,16 @@ void Viewer::renderUi()
         // breakCount input box
         drawBox(boxX0, y0, boxX1, y1, uiFocus == UI::BreakCount);
 
-        const int shown = std::clamp(uiBreakCount, 0, 99);
+        // preview like Seed, but clamp to one digit (0..9)
+        int shown = std::clamp(uiBreakCount, 0, 9);
+        if (uiFocus == UI::BreakCount && !uiEdit.empty())
+        {
+            char* end = nullptr;
+            const long v = std::strtol(uiEdit.c_str(), &end, 10);
+            if (end != uiEdit.c_str())
+                shown = (int)std::clamp<long>(v, 0, 9);
+        }
+
         PushInt7Tight(ui, shown,
                       boxX0 + 0.012f, y0 + 0.020f,
                       (boxX1 - boxX0) - 0.024f, (y1 - y0) - 0.040f,

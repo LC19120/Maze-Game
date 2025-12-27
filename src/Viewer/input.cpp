@@ -18,12 +18,10 @@ void Viewer::applyEdit()
     {
     case UI::Seed:        parseInt(uiSeed); break;
 
-    // +++ add
     case UI::BreakCount:
         parseInt(uiBreakCount);
-        uiBreakCount = std::clamp(uiBreakCount, 0, 99);
+        uiBreakCount = std::clamp(uiBreakCount, 0, 9); // <<< 1 digit
         break;
-    // --- add
 
     case UI::StartX:      parseInt(uiStartX);      break;
     case UI::StartY:      parseInt(uiStartY);      break;
@@ -61,16 +59,13 @@ void Viewer::initUiCallbacks()
                 return;
             }
 
-            // +++ BreakCount: exactly up to 2 digits
+            // BreakCount: exactly 1 digit (overwrite)
             if (self->uiFocus == UI::BreakCount)
             {
-                if (self->uiEdit == "-") self->uiEdit.clear();
-
-                if (self->uiEdit.size() < 2) self->uiEdit.push_back(ch);
-                else { self->uiEdit.erase(self->uiEdit.begin()); self->uiEdit.push_back(ch); }
+                self->uiEdit.clear();
+                self->uiEdit.push_back(ch);
                 return;
             }
-            // --- add
 
             if (self->uiEdit.size() < 12) self->uiEdit.push_back(ch);
             return;
@@ -78,9 +73,8 @@ void Viewer::initUiCallbacks()
 
         if (ch == '-')
         {
-            // +++ BreakCount 不允许负数
+            // BreakCount 不允许负数
             if (self->uiFocus == UI::BreakCount) return;
-            // --- add
 
             if (self->uiEdit.empty()) self->uiEdit.push_back(ch);
             return;
@@ -231,7 +225,7 @@ void Viewer::initUiCallbacks()
             const float y0 = bottomY0 + 1 * (btnH + btnGap);
             const float y1 = y0 + btnH;
 
-            const float boxW = btnH;          // square
+            const float boxW = btnH;          // square (keep)
             const float boxGap = 0.012f;
             const float boxX0 = contentX1 - boxW;
             const float boxX1 = contentX1;
@@ -242,7 +236,7 @@ void Viewer::initUiCallbacks()
             if (Hit_(mx, my, boxX0, y0, boxX1, y1))
             {
                 self->uiFocus = UI::BreakCount;
-                self->uiEdit = std::to_string(std::clamp(self->uiBreakCount, 0, 99));
+                self->uiEdit = std::to_string(std::clamp(self->uiBreakCount, 0, 9)); // <<< 1 digit
                 self->updateWindowTitle();
                 return;
             }
