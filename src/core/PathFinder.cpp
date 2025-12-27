@@ -6,16 +6,19 @@ static int Heuristic(const Point& a, const Point& b)
     return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 // return path, visted, length, time
-std::tuple<std::vector<Point>, int32_t, int32_t, std::chrono::milliseconds>
+std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
 PathFinder::pathFinder(Maze maze)
 {   
     //最短路径 使用A* 和 曼哈顿启发算法
+    std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
+PathFinder::pathFinder(Maze maze)
+{
     auto startTime = std::chrono::high_resolution_clock::now();
 
     struct Node {
         Point p;
-        int g;  // cost from start
-        int f;  // g + heuristic
+        int g;
+        int f;
     };
 
     auto cmp = [](const Node& a, const Node& b) {
@@ -33,7 +36,7 @@ PathFinder::pathFinder(Maze maze)
     openSet.push({ maze.start, 0, Heuristic(maze.start, maze.end) });
     costSoFar[key(maze.start.x, maze.start.y)] = 0;
 
-    int visited = 0;
+    std::vector<Point> visitedPoints;
     std::vector<Point> path;
 
     const int dx[4] = { 1, -1, 0, 0 };
@@ -43,11 +46,12 @@ PathFinder::pathFinder(Maze maze)
     {
         Node current = openSet.top();
         openSet.pop();
-        visited++;
+
+        // ⭐ 记录访问节点
+        visitedPoints.push_back(current.p);
 
         if (current.p == maze.end)
         {
-            // 回溯路径
             Point cur = maze.end;
             while (!(cur == maze.start))
             {
@@ -81,12 +85,18 @@ PathFinder::pathFinder(Maze maze)
     }
 
     auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 
-    return { path, visited, static_cast<int32_t>(path.size()), duration };
+    return {
+        path,
+        visitedPoints,
+        static_cast<int32_t>(path.size()),
+        duration
+    };
 }
 
-std::tuple<std::vector<Point>, int32_t, int32_t, std::chrono::milliseconds>
+std::tuple<std::vector<Point>,std::vector<Point> , int32_t, std::chrono::milliseconds>
 WallBreaker::BreakWalls(Maze maze, int32_t breakCount)
 {
     //破墙路径 使用空间BFS算法
@@ -99,18 +109,17 @@ WallBreaker::BreakWalls(Maze maze, int32_t breakCount)
 
     std::queue<State> q;
 
-    // key = (b * W * H) + y * W + x
     auto key = [&](int x, int y, int b) {
         return b * maze.width * maze.height + y * maze.width + x;
     };
 
     std::unordered_set<int> visited;
+    std::vector<Point> visitedPoints;
     std::unordered_map<int, State> parent;
 
     q.push({ maze.start, 0 });
     visited.insert(key(maze.start.x, maze.start.y, 0));
 
-    int visitedCount = 0;
     int endKey = -1;
 
     const int dx[4] = { 1, -1, 0, 0 };
@@ -119,7 +128,9 @@ WallBreaker::BreakWalls(Maze maze, int32_t breakCount)
     while (!q.empty())
     {
         State cur = q.front(); q.pop();
-        visitedCount++;
+
+        // ⭐ 记录访问节点（去重）
+        visitedPoints.push_back(cur.p);
 
         if (cur.p == maze.end)
         {
@@ -148,7 +159,6 @@ WallBreaker::BreakWalls(Maze maze, int32_t breakCount)
 
     std::vector<Point> path;
 
-    // 回溯路径
     if (endKey != -1)
     {
         int curKey = endKey;
@@ -174,12 +184,11 @@ WallBreaker::BreakWalls(Maze maze, int32_t breakCount)
 
     return {
         path,
-        visitedCount,
+        visitedPoints,
         static_cast<int32_t>(path.size()),
         duration
     };
 }
-
 
 //return pair<paths,lengths> , ways , time
 std::tuple<std::pair<std::vector<std::vector<Point>>, std::vector<int32_t>>, int32_t, std::chrono::milliseconds>
