@@ -270,8 +270,150 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
 }
 
 // minimum way passed by x,y
-std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
+std::tuple<std::vector<Point>, std::vector<Point>,std::vector<Point>, int32_t, std::chrono::milliseconds>
 PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
 {
-    
+   auto startTime = std::chrono::high_resolution_clock::now();
+
+    Point mid{ static_cast<int>(x), static_cast<int>(y) };
+
+    std::vector<Point> empty;
+    if (!maze.InBounds(mid.x, mid.y) || maze.IsWall(mid.x, mid.y))
+    {
+        return { empty, empty, empty, 0, std::chrono::milliseconds(0) };
+    }
+
+    const int dx[4] = { 1, -1, 0, 0 };
+    const int dy[4] = { 0, 0, 1, -1 };
+
+    auto key = [&](int x, int y) {
+        return y * maze.width + x;
+    };
+
+    // ================= 双向 BFS 函数 =================
+    auto biBFS = [&](Point start, Point end,
+                     std::vector<Point>& visitedOut) -> std::vector<Point>
+    {
+        std::queue<Point> q1, q2;
+        std::unordered_map<int, Point> prev1, prev2;
+        std::unordered_set<int> vis1, vis2;
+
+        q1.push(start);
+        q2.push(end);
+        vis1.insert(key(start.x, start.y));
+        vis2.insert(key(end.x, end.y));
+
+        Point meet{ -1, -1 };
+
+        while (!q1.empty() && !q2.empty())
+        {
+            // ---------- 正向 ----------
+            int s1 = q1.size();
+            while (s1--)
+            {
+                Point cur = q1.front(); q1.pop();
+                visitedOut.push_back(cur);
+
+                for (int i = 0; i < 4; ++i)
+                {
+                    int nx = cur.x + dx[i];
+                    int ny = cur.y + dy[i];
+                    int k = key(nx, ny);
+
+                    if (!maze.InBounds(nx, ny) || maze.IsWall(nx, ny)) continue;
+                    if (vis1.count(k)) continue;
+
+                    vis1.insert(k);
+                    prev1[k] = cur;
+
+                    if (vis2.count(k))
+                    {
+                        meet = { nx, ny };
+                        goto BUILD_PATH;
+                    }
+                    q1.push({ nx, ny });
+                }
+            }
+
+            // ---------- 反向 ----------
+            int s2 = q2.size();
+            while (s2--)
+            {
+                Point cur = q2.front(); q2.pop();
+                visitedOut.push_back(cur);
+
+                for (int i = 0; i < 4; ++i)
+                {
+                    int nx = cur.x + dx[i];
+                    int ny = cur.y + dy[i];
+                    int k = key(nx, ny);
+
+                    if (!maze.InBounds(nx, ny) || maze.IsWall(nx, ny)) continue;
+                    if (vis2.count(k)) continue;
+
+                    vis2.insert(k);
+                    prev2[k] = cur;
+
+                    if (vis1.count(k))
+                    {
+                        meet = { nx, ny };
+                        goto BUILD_PATH;
+                    }
+                    q2.push({ nx, ny });
+                }
+            }
+        }
+
+    BUILD_PATH:
+        if (meet.x == -1) return empty;
+
+        std::vector<Point> path1, path2;
+
+        Point cur = meet;
+        while (!(cur == start))
+        {
+            path1.push_back(cur);
+            cur = prev1[key(cur.x, cur.y)];
+        }
+        path1.push_back(start);
+        std::reverse(path1.begin(), path1.end());
+
+        cur = meet;
+        while (!(cur == end))
+        {
+            cur = prev2[key(cur.x, cur.y)];
+            path2.push_back(cur);
+        }
+
+        path1.insert(path1.end(), path2.begin(), path2.end());
+        return path1;
+    };
+
+    // ================= 执行两段 =================
+    std::vector<Point> visitedSP, visitedPE;
+    auto path1 = biBFS(maze.start, mid, visitedSP);
+    auto path2 = biBFS(mid, maze.end, visitedPE);
+
+    if (path1.empty() || path2.empty())
+    {
+        return { empty, visitedSP, visitedPE, 0,
+                 std::chrono::milliseconds(0) };
+    }
+
+    // 去掉重复的 mid
+    path1.pop_back();
+    path1.insert(path1.end(), path2.begin(), path2.end());
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+    return {
+        path1,
+        visitedSP,
+        visitedPE,
+        static_cast<int32_t>(path1.size()),
+        duration
+    };
+} 
 }
