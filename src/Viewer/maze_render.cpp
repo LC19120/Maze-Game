@@ -83,6 +83,20 @@ void Viewer::rebuildMeshFromMaze(const Maze& m)
                 continue;
             }
 
+            // +++ add: broken-wall-on-path marker (wall base + CENTER yellow 50% alpha)
+            if (v == 18)
+            {
+                // base wall tile (opaque)
+                PushRect_(verts, x0, y0, x1, y1, wallR, wallG, wallB, opaqueA);
+
+                // center overlay (BREAK button color, 50% alpha)
+                const float shrink = 0.50f;
+                const float pad = cell * (1.0f - shrink) * 0.5f;
+                PushRect_(verts, x0 + pad, y0 + pad, x1 - pad, y1 - pad, bfs2R, bfs2G, bfs2B, visitedA);
+                continue;
+            }
+            // --- add
+
             float rr = pathR, gg = pathG, bb = pathB, aa = opaqueA;
 
             if (v == 1) { rr = wallR; gg = wallG; bb = wallB; aa = opaqueA; }
