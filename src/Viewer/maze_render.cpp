@@ -100,14 +100,14 @@ void Viewer::rebuildMeshFromMaze(const Maze& m)
             else if (v == 16) { rr = floR; gg = floG; bb = floB; aa = visitedA; }
             else if (v == 17) { rr = bfs2R; gg = bfs2G; bb = bfs2B; aa = visitedA; }
 
-            // +++ add: COUNT overlay alpha (use v==6 color, but per-cell alpha)
+            else if (v == 18) { rr = bfs2R; gg = bfs2G; bb = bfs2B; aa = visitedA; }
+
             if (v == 6 && alphaOverrideActive)
             {
                 const size_t idx = (size_t)r * (size_t)cols + (size_t)c;
                 if (idx < cellAlphaOverride.size())
                     aa = std::clamp(cellAlphaOverride[idx], 0.0f, 1.0f);
             }
-            // --- add
 
             PushRect_(verts, x0, y0, x1, y1, rr, gg, bb, aa);
         }

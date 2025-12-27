@@ -53,7 +53,7 @@ private:
         bool active = false;
         std::chrono::steady_clock::time_point t0{};
 
-        // mode 0: PATH/BREAK (visited+path), mode 1: COUNT (allPaths overlay)
+        // mode 0: PATH/BREAK (visited+path), mode 1: COUNT overlay
         int mode = 0;
 
         // PATH/BREAK playback data
@@ -61,20 +61,24 @@ private:
         std::vector<Point> path;
         int visitedVal = 15;
         int pathVal    = 5;
+
+        // +++ add: for BREAK, remember which cells were walls before breaking (size W*H, 0/1)
+        bool hasOrigWall = false;
+        std::vector<uint8_t> origWall;
+        // --- add
+
         size_t lastVisitedN = (size_t)-1;
         size_t lastPathN    = (size_t)-1;
 
         // COUNT playback data
         std::vector<std::vector<Point>> allPaths;
         int totalPaths = 0;
-        size_t lastK = 0;                 // how many paths already applied
-        std::vector<int32_t> passCount;   // per-cell count (size W*H)
+        size_t lastK = 0;
+        std::vector<int32_t> passCount;
     } anim;
 
-    // +++ add: per-cell alpha override for rendering (size W*H)
     bool alphaOverrideActive = false;
     std::vector<float> cellAlphaOverride;
-    // --- add
 
 private:
     // -------- window / gl state --------

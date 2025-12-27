@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 #include <algorithm>
-#include <cmath> // +++ add for std::floor
+#include <cmath>
 
 Viewer& Viewer::getInstance()
 {
@@ -36,6 +36,7 @@ void Viewer::tickPathAnim_()
 
     const int H = (int)maze.grid.size();
     const int W = (int)maze.grid[0].size();
+    const size_t N = (size_t)W * (size_t)H;
 
     // ---- MODE 1: COUNT overlay animation (3s for all paths)
     if (anim.mode == 1)
@@ -52,13 +53,10 @@ void Viewer::tickPathAnim_()
         size_t k = (size_t)std::floor(t * (double)anim.totalPaths);
         if (k > (size_t)anim.totalPaths) k = (size_t)anim.totalPaths;
 
-        // first tick init buffers (size W*H)
-        const size_t N = (size_t)W * (size_t)H;
         if (anim.passCount.size() != N) anim.passCount.assign(N, 0);
         if (cellAlphaOverride.size() != N) cellAlphaOverride.assign(N, 0.0f);
         alphaOverrideActive = true;
 
-        // apply newly revealed paths incrementally
         if (k > anim.lastK)
         {
             for (size_t i = anim.lastK; i < k; ++i)
@@ -67,12 +65,16 @@ void Viewer::tickPathAnim_()
                 for (const auto& p : anim.allPaths[i])
                 {
                     if (!maze.InBounds(p.x, p.y)) continue;
-                    if (maze.grid[p.y][p.x] == 1) continue; // don't paint walls
+                    if (maze.grid[p.y][p.x] == 1) continue;
+
+                    // start/end 不上色
+                    if ((p.x == maze.start.x && p.y == maze.start.y) ||
+                        (p.x == maze.end.x   && p.y == maze.end.y))
+                        continue;
 
                     const size_t idx = (size_t)p.y * (size_t)W + (size_t)p.x;
                     int32_t cnt = ++anim.passCount[idx];
 
-                    // each path contributes 1/totalPaths, overlap accumulates
                     float a = (float)cnt / (float)anim.totalPaths;
                     if (a > 1.0f) a = 1.0f;
 
@@ -85,18 +87,14 @@ void Viewer::tickPathAnim_()
             mazeDirty = true;
         }
 
-        // keep endpoints visible
-        if (maze.InBounds(maze.start.x, maze.start.y)) maze.grid[maze.start.y][maze.start.x] = 27;
-        if (maze.InBounds(maze.end.x, maze.end.y))     maze.grid[maze.end.y][maze.end.x]     = 27;
-
         if (elapsed == TOTAL)
             anim.active = false;
 
         return;
     }
 
-    // ---- MODE 0: PATH/BREAK (existing visited->path split)
-    constexpr float VIS_PHASE = 0.70f; // 70% visited, 30% path
+    // ---- MODE 0: PATH/BREAK (visited->path split)
+    constexpr float VIS_PHASE = 0.70f;
     const auto visEnd = std::chrono::milliseconds((int)(TOTAL.count() * VIS_PHASE));
     const auto pathSpan = TOTAL - visEnd;
 
@@ -131,24 +129,44 @@ void Viewer::tickPathAnim_()
         for (int x = 0; x < W; ++x)
             if (maze.grid[y][x] != 1) maze.grid[y][x] = 0;
 
-    // paint visited
+    // paint visited (skip start/end)
     for (size_t i = 0; i < nVisited; ++i)
     {
         const auto& p = anim.visited[i];
-        if (maze.InBounds(p.x, p.y) && maze.grid[p.y][p.x] != 1)
-            maze.grid[p.y][p.x] = anim.visitedVal;
+        if (!maze.InBounds(p.x, p.y)) continue;
+        if (maze.grid[p.y][p.x] == 1) continue;
+
+        if ((p.x == maze.start.x && p.y == maze.start.y) ||
+            (p.x == maze.end.x   && p.y == maze.end.y))
+            continue;
+
+        maze.grid[p.y][p.x] = anim.visitedVal;
     }
 
-    // paint path
+    // paint path (skip start/end)
     for (size_t i = 0; i < nPath; ++i)
     {
         const auto& p = anim.path[i];
-        if (maze.InBounds(p.x, p.y) && maze.grid[p.y][p.x] != 1)
-            maze.grid[p.y][p.x] = anim.pathVal;
-    }
+        if (!maze.InBounds(p.x, p.y)) continue;
+        if (maze.grid[p.y][p.x] == 1) continue;
 
-    if (maze.InBounds(maze.start.x, maze.start.y)) maze.grid[maze.start.y][maze.start.x] = 27;
-    if (maze.InBounds(maze.end.x, maze.end.y))     maze.grid[maze.end.y][maze.end.x]     = 27;
+        if ((p.x == maze.start.x && p.y == maze.start.y) ||
+            (p.x == maze.end.x   && p.y == maze.end.y))
+            continue;
+
+        // BREAK: if this path cell was a wall in the ORIGINAL maze => render as "broken" (yellow 50%)
+        if (anim.pathVal == 7 && anim.hasOrigWall && anim.origWall.size() == N)
+        {
+            const size_t idx = (size_t)p.y * (size_t)W + (size_t)p.x;
+            if (anim.origWall[idx] == 1)
+            {
+                maze.grid[p.y][p.x] = 18; // special: broken-wall-on-path
+                continue;
+            }
+        }
+
+        maze.grid[p.y][p.x] = anim.pathVal;
+    }
 
     mazeDirty = true;
 
@@ -247,24 +265,19 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
     if (maze.InBounds(sx, sy)) maze.grid[sy][sx] = 0;
     if (maze.InBounds(ex, ey)) maze.grid[ey][ex] = 0;
 
-    // reset alpha override unless COUNT starts it
     alphaOverrideActive = false;
     cellAlphaOverride.clear();
 
-    // COUNT: animate all paths as overlay
+    // COUNT
     if (algoIndex == 2)
     {
         auto result = PathCounter::CountPaths(maze, maze.start, maze.end);
         auto allPaths = std::move(std::get<0>(result).first);
         const int32_t ways = std::get<1>(result);
 
-        // clear non-walls once
         for (int y = 0; y < H; ++y)
             for (int x = 0; x < W; ++x)
                 if (maze.grid[y][x] != 1) maze.grid[y][x] = 0;
-
-        if (maze.InBounds(maze.start.x, maze.start.y)) maze.grid[maze.start.y][maze.start.x] = 27;
-        if (maze.InBounds(maze.end.x, maze.end.y))     maze.grid[maze.end.y][maze.end.x]     = 27;
 
         anim.active = true;
         anim.mode = 1;
@@ -274,21 +287,36 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
         anim.lastK = 0;
         anim.passCount.clear();
 
+        // not used in COUNT
+        anim.hasOrigWall = false;
+        anim.origWall.clear();
+
         mazeDirty = true;
         updateWindowTitle();
         return;
     }
 
-    // PATH / BREAK: existing animation
+    // PATH / BREAK
     std::vector<Point> path;
     std::vector<Point> visited;
 
+    anim.hasOrigWall = false;
+    anim.origWall.clear();
+
     if (algoIndex == 1)
     {
+        // snapshot original walls BEFORE running breaker
+        anim.hasOrigWall = true;
+        anim.origWall.resize((size_t)W * (size_t)H, 0);
+        for (int y = 0; y < H; ++y)
+            for (int x = 0; x < W; ++x)
+                anim.origWall[(size_t)y * (size_t)W + (size_t)x] = (maze.grid[y][x] == 1) ? 1 : 0;
+
         const int bc = std::clamp(uiBreakCount, 0, 9);
         auto result = WallBreaker::BreakWalls(maze, bc);
         path = std::get<0>(result);
         visited = std::get<1>(result);
+
         anim.pathVal = 7;
         anim.visitedVal = 17;
     }
@@ -297,6 +325,7 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
         auto result = PathFinder::pathFinder(maze);
         path = std::get<0>(result);
         visited = std::get<1>(result);
+
         anim.pathVal = 5;
         anim.visitedVal = 15;
     }
@@ -312,9 +341,6 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
     for (int y = 0; y < H; ++y)
         for (int x = 0; x < W; ++x)
             if (maze.grid[y][x] != 1) maze.grid[y][x] = 0;
-
-    if (maze.InBounds(maze.start.x, maze.start.y)) maze.grid[maze.start.y][maze.start.x] = 27;
-    if (maze.InBounds(maze.end.x, maze.end.y))     maze.grid[maze.end.y][maze.end.x]     = 27;
 
     mazeDirty = true;
     updateWindowTitle();
