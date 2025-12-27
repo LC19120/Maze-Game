@@ -5,14 +5,14 @@
 class PathFinder
 {
     public:
-        static std::tuple<std::vector<Point>, int32_t, int32_t, std::chrono::milliseconds>
+        static std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
         pathFinder(Maze maze);
 };
 
 class WallBreaker : public PathFinder
 {
     public:
-        static std::tuple<std::vector<Point>, int32_t, int32_t, std::chrono::milliseconds>
+        static std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
         BreakWalls(Maze maze, int32_t breakCount);
 
 };
@@ -23,4 +23,11 @@ class PathCounter : public PathFinder
         static std::tuple<std::pair<std::vector<std::vector<Point>>, std::vector<int32_t>>, int32_t, std::chrono::milliseconds>
         CountPaths(Maze maze, Point start, Point end);
 
+};
+
+class PathPasser : public PathFinder
+{
+    public:
+        static std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
+        PassPath(Maze maze, uint32_t x, uint32_t y);
 };

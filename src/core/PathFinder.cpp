@@ -5,12 +5,8 @@ static int Heuristic(const Point& a, const Point& b)
     // 曼哈顿距离
     return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
-// return path, visted, length, time
+ //最短路径 使用A* 和 曼哈顿启发算法
 std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
-PathFinder::pathFinder(Maze maze)
-{   
-    //最短路径 使用A* 和 曼哈顿启发算法
-    std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
 PathFinder::pathFinder(Maze maze)
 {
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -248,7 +244,7 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
                 if (visited[ny][nx]) continue;
 
                 auto e = edgeKey(p, { nx, ny });
-                if (usedEdges.count(e)) continue;  // ⭐ 防止成环
+                if (usedEdges.count(e)) continue;
 
                 usedEdges.insert(e);
                 dfs({ nx, ny });
@@ -273,3 +269,9 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
     };
 }
 
+// minimum way passed by x,y
+std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
+PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
+{
+    
+}
