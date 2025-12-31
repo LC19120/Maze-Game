@@ -46,10 +46,7 @@ private:
     void buildMaze(int seed);
     void findPath(int sx, int sy, int ex, int ey, int algoIndex);
     void tickPathAnim_();
-
-    // +++ add: pass-through (via X/Y point)
     void passPath(uint32_t x, uint32_t y);
-    // --- add
 
     struct PathAnim
     {
@@ -75,9 +72,7 @@ private:
         std::vector<std::vector<Point>> allPaths;
         int totalPaths = 0;
 
-        // --- change: replace lastK with per-path progress
-        std::vector<size_t> lastLenPerPath;   // each path grows from start simultaneously
-        // --- change
+        std::vector<size_t> lastLenPerPath;
 
         std::vector<int32_t> passCount;
     } anim;
@@ -127,8 +122,7 @@ private:
     int lastBreakLen = 0;   // BREAK
     int lastCountWays = 0;  // COUNT (already existed)
     int lastPassLen  = 0;   // PASS
-
-    // +++ add: stable base wall snapshot (prevents animation from changing maze topology)
+    
     std::vector<uint8_t> baseWall; // 1 = wall, 0 = empty
-    // --- add
+
 };

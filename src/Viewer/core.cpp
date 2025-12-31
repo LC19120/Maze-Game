@@ -3,7 +3,6 @@
 #include "core/MazeBuilder.hpp"
 #include "core/PathFinder.hpp"
 
-#include <stdexcept>
 #include <algorithm>
 #include <cmath>
 
@@ -17,8 +16,11 @@ Viewer::Viewer() = default;
 
 Viewer::~Viewer()
 {
-    // allow safe cleanup even if run() already called shutdownGL()
-    try { shutdownGL(); } catch (...) {}
+    try { 
+        shutdownGL(); 
+    } catch (...) {
+
+    }
 }
 
 void Viewer::tickPathAnim_()
@@ -144,11 +146,6 @@ void Viewer::tickPathAnim_()
         const auto& p = anim.visited[i];
         if (!maze.InBounds(p.x, p.y)) continue;
         if (maze.grid[p.y][p.x] == 1) continue;
-
-        // 允许 start/end 也显示 visited 颜色
-        // if ((p.x == maze.start.x && p.y == maze.start.y) ||
-        //     (p.x == maze.end.x   && p.y == maze.end.y))
-        //     continue;
 
         maze.grid[p.y][p.x] = anim.visitedVal;
     }

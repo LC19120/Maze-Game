@@ -3,7 +3,6 @@
 
 #include <algorithm>
 
-// +++ add: missing definition (fix linker error)
 void Viewer::rebuildMeshIfDirty()
 {
     Maze local{};
@@ -25,7 +24,6 @@ void Viewer::rebuildMeshIfDirty()
     if (doRebuild)
         rebuildMeshFromMaze(local);
 }
-// --- add
 
 void Viewer::rebuildMeshFromMaze(const Maze& m)
 {
@@ -59,15 +57,11 @@ void Viewer::rebuildMeshFromMaze(const Maze& m)
     const float visitedA = 0.50f;
     const float opaqueA  = 1.00f;
 
-    // +++ add: PASS color (same as PASS button / XY marker)
     const float passR = 0.20f, passG = 0.85f, passB = 0.75f; // PATH tile=8, VISITED tile=19
-    // --- add
 
-    // +++ add: XY preview marker uses PathPasser button color
     const float xyR = 0.20f, xyG = 0.85f, xyB = 0.75f;
     // center marker size (50%)
     const float xyShrink = 0.50f;
-    // --- add
 
     for (int r = 0; r < rows; ++r)
     {
@@ -80,46 +74,40 @@ void Viewer::rebuildMeshFromMaze(const Maze& m)
 
             const uint8_t v = (uint8_t)grid[r][c];
 
-            // +++ add: is this the UI-entered (X,Y)?
             // NOTE: uiStartX/uiStartY currently serve as the XY input boxes.
             const bool isXY = (c == uiStartX && r == uiStartY);
-            // --- add
 
             if (v == 27)
             {
-                PushRect_(verts, x0, y0, x1, y1, wallR, wallG, wallB, opaqueA);
+                PushRect(verts, x0, y0, x1, y1, wallR, wallG, wallB, opaqueA);
 
                 const float shrink = 0.50f;
                 const float pad = cell * (1.0f - shrink) * 0.5f;
-                PushRect_(verts, x0 + pad, y0 + pad, x1 - pad, y1 - pad, bfs2R, bfs2G, bfs2B, opaqueA);
+                PushRect(verts, x0 + pad, y0 + pad, x1 - pad, y1 - pad, bfs2R, bfs2G, bfs2B, opaqueA);
 
-                // +++ add: overlay XY marker on top
                 if (isXY)
                 {
                     const float pad2 = cell * (1.0f - xyShrink) * 0.5f;
-                    PushRect_(verts, x0 + pad2, y0 + pad2, x1 - pad2, y1 - pad2, xyR, xyG, xyB, opaqueA);
+                    PushRect(verts, x0 + pad2, y0 + pad2, x1 - pad2, y1 - pad2, xyR, xyG, xyB, opaqueA);
                 }
-                // --- add
                 continue;
             }
 
             if (v == 18)
             {
                 // base wall tile (opaque)
-                PushRect_(verts, x0, y0, x1, y1, wallR, wallG, wallB, opaqueA);
+                PushRect(verts, x0, y0, x1, y1, wallR, wallG, wallB, opaqueA);
 
                 // center overlay: 50% size, BREAK button color (opaque)
                 const float shrink = 0.50f;
                 const float pad = cell * (1.0f - shrink) * 0.5f;
-                PushRect_(verts, x0 + pad, y0 + pad, x1 - pad, y1 - pad, bfs2R, bfs2G, bfs2B, opaqueA);
+                PushRect(verts, x0 + pad, y0 + pad, x1 - pad, y1 - pad, bfs2R, bfs2G, bfs2B, opaqueA);
 
-                // +++ add: overlay XY marker on top
                 if (isXY)
                 {
                     const float pad2 = cell * (1.0f - xyShrink) * 0.5f;
-                    PushRect_(verts, x0 + pad2, y0 + pad2, x1 - pad2, y1 - pad2, xyR, xyG, xyB, opaqueA);
+                    PushRect(verts, x0 + pad2, y0 + pad2, x1 - pad2, y1 - pad2, xyR, xyG, xyB, opaqueA);
                 }
-                // --- add
                 continue;
             }
 
@@ -155,15 +143,13 @@ void Viewer::rebuildMeshFromMaze(const Maze& m)
                     aa = std::clamp(cellAlphaOverride[idx], 0.0f, 1.0f);
             }
 
-            PushRect_(verts, x0, y0, x1, y1, rr, gg, bb, aa);
+            PushRect(verts, x0, y0, x1, y1, rr, gg, bb, aa);
 
-            // +++ add: overlay XY marker on top of any tile (including walls)
             if (isXY)
             {
                 const float pad2 = cell * (1.0f - xyShrink) * 0.5f;
-                PushRect_(verts, x0 + pad2, y0 + pad2, x1 - pad2, y1 - pad2, xyR, xyG, xyB, opaqueA);
+                PushRect(verts, x0 + pad2, y0 + pad2, x1 - pad2, y1 - pad2, xyR, xyG, xyB, opaqueA);
             }
-            // --- add
         }
     }
 

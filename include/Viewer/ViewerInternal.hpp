@@ -22,7 +22,7 @@ struct Vertex
     float r, g, b, a; // +++ add alpha
 };
 
-inline void PushRect_(std::vector<Vertex>& out,
+inline void PushRect(std::vector<Vertex>& out,
                       float x0, float y0, float x1, float y1,
                       float r, float g, float b,
                       float a = 1.0f) // +++ default opaque
@@ -36,7 +36,7 @@ inline void PushRect_(std::vector<Vertex>& out,
     out.push_back({x0, y1, r, g, b, a});
 }
 
-inline bool Hit_(float mx, float my, float x0, float y0, float x1, float y1)
+inline bool Hit(float mx, float my, float x0, float y0, float x1, float y1)
 {
     return mx >= x0 && mx <= x1 && my >= y0 && my <= y1;
 }

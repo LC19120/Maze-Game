@@ -3,16 +3,15 @@
 
 #include <array>
 #include <string_view>
-#include <cmath>
 #include <cstdlib>
 
-
-
+// 将一段“线段”以矩形的方式压入顶点数组（用于七段数码管的段绘制）
 static void PushSeg(std::vector<Vertex>& out, float x0, float y0, float x1, float y1, float r, float g, float b)
 {
-    PushRect_(out, x0, y0, x1, y1, r, g, b);
+    PushRect(out, x0, y0, x1, y1, r, g, b);
 }
 
+// 绘制单个七段数码管字符（0-9、'-'），并将对应矩形段压入顶点数组
 static void PushDigit7(std::vector<Vertex>& out, char ch,
                         float x, float y, float w, float h,
                         float r, float g, float b)
@@ -60,6 +59,7 @@ static void PushDigit7(std::vector<Vertex>& out, char ch,
     }
 }
 
+// 将整数按七段数码管形式绘制（按位均分宽度+固定间距），并压入顶点数组
 static void PushInt7(std::vector<Vertex>& out, int v,
                       float x, float y, float w, float h,
                       float r, float g, float b)
@@ -74,15 +74,13 @@ static void PushInt7(std::vector<Vertex>& out, int v,
     }
 }
 
-// +++ add: tighter number renderer for narrow columns (visited etc.)
+// 更紧凑的整数七段数码管渲染：减少间距以适配窄列/多位数字
 static void PushInt7Tight(std::vector<Vertex>& out, int v,
                            float x, float y, float w, float h,
                            float r, float g, float b)
 {
     std::string s = std::to_string(v);
     const size_t n = std::max<size_t>(s.size(), 1);
-
-    // smaller gap so 5~6 digits still fit
     float gap = w * 0.055f;
     gap = std::min(gap, w * 0.10f);
     gap = std::max(gap, w * 0.02f);
@@ -96,23 +94,16 @@ static void PushInt7Tight(std::vector<Vertex>& out, int v,
         cx += cw + gap;
     }
 }
-// --- add
 
 namespace
 {
-    static std::array<uint8_t, 7> Glyph5x7_(char c)
+    static std::array<uint8_t, 7> Glyph5x7(char c)
     {
-        // +++ support a-z by mapping to A-Z
         if (c >= 'a' && c <= 'z') c = (char)(c - 'a' + 'A');
-        // --- support
-
         switch (c)
         {
         case ' ': return {0,0,0,0,0,0,0};
-
-        // +++ add: digits + minus (so "BREAK-1"/"BREAK-3" render fully)
         case '-': return {0b00000,0b00000,0b00000,0b11111,0b00000,0b00000,0b00000};
-
         case '0': return {0b01110,0b10001,0b10011,0b10101,0b11001,0b10001,0b01110};
         case '1': return {0b00100,0b01100,0b00100,0b00100,0b00100,0b00100,0b01110};
         case '2': return {0b01110,0b10001,0b00001,0b00010,0b00100,0b01000,0b11111};
@@ -123,8 +114,6 @@ namespace
         case '7': return {0b11111,0b00001,0b00010,0b00100,0b01000,0b01000,0b01000};
         case '8': return {0b01110,0b10001,0b10001,0b01110,0b10001,0b10001,0b01110};
         case '9': return {0b01110,0b10001,0b10001,0b01111,0b00001,0b00010,0b11100};
-        // --- add
-
         case 'A': return {0b01110,0b10001,0b10001,0b11111,0b10001,0b10001,0b10001};
         case 'B': return {0b11110,0b10001,0b10001,0b11110,0b10001,0b10001,0b11110};
         case 'C': return {0b01110,0b10001,0b10000,0b10000,0b10000,0b10001,0b01110};
@@ -151,14 +140,14 @@ namespace
         case 'X': return {0b10001,0b01010,0b00100,0b00100,0b00100,0b01010,0b10001};
         case 'Y': return {0b10001,0b01010,0b00100,0b00100,0b00100,0b00100,0b00100};
         case 'Z': return {0b11111,0b00001,0b00010,0b00100,0b01000,0b10000,0b11111};
-
         case '*': return {0b00100,0b10101,0b01110,0b11111,0b01110,0b10101,0b00100};
         case '+': return {0b00000,0b00100,0b00100,0b11111,0b00100,0b00100,0b00000};
         default:  return {0,0,0,0,0,0,0};
         }
     }
 
-    static void PushText5x7_(std::vector<Vertex>& out,
+    // 使用 5x7 点阵字体绘制文本：按像素大小生成小矩形并压入顶点数组
+    static void PushText5x7(std::vector<Vertex>& out,
                             std::string_view text,
                             float x, float y,
                             float pixelW, float pixelH,
@@ -167,7 +156,7 @@ namespace
         float cx = x;
         for (char ch : text)
         {
-            const auto g7 = Glyph5x7_(ch);
+            const auto g7 = Glyph5x7(ch);
             for (int row = 0; row < 7; ++row)
             {
                 for (int col = 0; col < 5; ++col)
@@ -179,34 +168,35 @@ namespace
                     const float y0 = y  + (6 - row) * pixelH;
                     const float x1 = x0 + pixelW;
                     const float y1 = y0 + pixelH;
-                    PushRect_(out, x0, y0, x1, y1, r, g, b);
+                    PushRect(out, x0, y0, x1, y1, r, g, b);
                 }
             }
-            cx += 6.0f * pixelW; // 5 cols + 1 spacing
+            cx += 6.0f * pixelW;
         }
     }
 
-    static float TextWidth5x7_(std::string_view text, float pixelW)
+    // 计算 5x7 点阵文本在给定像素宽度下的总宽度（含字符间距）
+    static float TextWidth5x7(std::string_view text, float pixelW)
     {
         return (float)text.size() * 6.0f * pixelW;
     }
 }
 
-// +++ add: helper to draw centered button label (uses existing 5x7 text helpers)
-static void DrawBtnLabel_(std::vector<Vertex>& out,
+// 在按钮矩形内居中绘制标签文本（使用 5x7 点阵字体）
+static void DrawBtnLabel(std::vector<Vertex>& out,
                           std::string_view label,
                           float x0, float y0, float x1, float y1,
                           float pix = 0.0100f,
                           float r = 0.08f, float g = 0.08f, float b = 0.08f)
 {
-    const float tw = TextWidth5x7_(label, pix);
+    const float tw = TextWidth5x7(label, pix);
     const float th = 7.0f * pix;
     const float tx = (x0 + x1) * 0.5f - tw * 0.5f;
     const float ty = (y0 + y1) * 0.5f - th * 0.5f;
-    PushText5x7_(out, label, tx, ty, pix, pix, r, g, b);
+    PushText5x7(out, label, tx, ty, pix, pix, r, g, b);
 }
-// --- add
 
+// 渲染左侧 UI 面板：按钮、输入框与结果展示，并上传顶点到 OpenGL 绘制
 void Viewer::renderUi()
 {
     std::vector<Vertex> ui;
@@ -221,15 +211,15 @@ void Viewer::renderUi()
     const float panelY0 = -1.0f, panelY1 = 1.0f;
 
     // panel bg
-    PushRect_(ui, panelX0, panelY0, panelX1, panelY1, 0.12f, 0.12f, 0.12f);
+    PushRect(ui, panelX0, panelY0, panelX1, panelY1, 0.12f, 0.12f, 0.12f);
 
     auto drawBox = [&](float x0, float y0, float x1, float y1, bool focused)
     {
         const float br = focused ? 0.95f : 0.35f;
         const float bg = focused ? 0.85f : 0.35f;
         const float bb = focused ? 0.20f : 0.35f;
-        PushRect_(ui, x0 - 0.005f, y0 - 0.005f, x1 + 0.005f, y1 + 0.005f, br, bg, bb);
-        PushRect_(ui, x0, y0, x1, y1, 0.18f, 0.18f, 0.18f);
+        PushRect(ui, x0 - 0.005f, y0 - 0.005f, x1 + 0.005f, y1 + 0.005f, br, bg, bb);
+        PushRect(ui, x0, y0, x1, y1, 0.18f, 0.18f, 0.18f);
     };
 
     const float padX = 0.05f;
@@ -248,16 +238,16 @@ void Viewer::renderUi()
     const float buildY0 = buildY1 - buildH;
 
     // button bg
-    PushRect_(ui, contentX0, buildY0, contentX1, buildY1, 0.75f, 0.75f, 0.75f);
+    PushRect(ui, contentX0, buildY0, contentX1, buildY1, 0.75f, 0.75f, 0.75f);
 
     // label
     {
         const std::string_view label = "BUILD";
         const float pix = 0.0105f;
-        const float tw  = TextWidth5x7_(label, pix);
+        const float tw  = TextWidth5x7(label, pix);
         const float tx  = (contentX0 + contentX1) * 0.5f - tw * 0.5f;
         const float ty  = (buildY0 + buildY1) * 0.5f - (7.0f * pix) * 0.5f;
-        PushText5x7_(ui, label, tx, ty, pix, pix, 0.08f, 0.08f, 0.08f);
+        PushText5x7(ui, label, tx, ty, pix, pix, 0.08f, 0.08f, 0.08f);
     }
 
     // ---- Row 2: SEED label + seed input
@@ -273,7 +263,7 @@ void Viewer::renderUi()
     const float seedY0 = seedY1 - seedH;
 
     // draw "SEED" label (left aligned)
-    PushText5x7_(ui, "SEED",
+    PushText5x7(ui, "SEED",
                  contentX0, seedLabelY0,
                  seedLabelPix, seedLabelPix,
                  0.92f, 0.92f, 0.92f);
@@ -314,11 +304,11 @@ void Viewer::renderUi()
     const float yBoxX1 = contentX1;
 
     // labels
-    PushText5x7_(ui, "X",
+    PushText5x7(ui, "X",
                  xBoxX0, xyLabelY0,
                  seedLabelPix, seedLabelPix,
                  0.92f, 0.92f, 0.92f);
-    PushText5x7_(ui, "Y",
+    PushText5x7(ui, "Y",
                  yBoxX0, xyLabelY0,
                  seedLabelPix, seedLabelPix,
                  0.92f, 0.92f, 0.92f);
@@ -396,7 +386,7 @@ void Viewer::renderUi()
 
         // left label
         const float pix = 0.0085f;
-        PushText5x7_(ui, tag,
+        PushText5x7(ui, tag,
                      contentX0 + 0.018f, resY0 + 0.030f,
                      pix, pix,
                      0.92f, 0.92f, 0.92f);
@@ -418,8 +408,8 @@ void Viewer::renderUi()
     {
         const float y0 = bottomY0 + 0 * (btnH + btnGap);
         const float y1 = y0 + btnH;
-        PushRect_(ui, contentX0, y0, contentX1, y1, 0.20f, 0.55f, 1.00f);
-        DrawBtnLabel_(ui, "PATH", contentX0, y0, contentX1, y1);
+        PushRect(ui, contentX0, y0, contentX1, y1, 0.20f, 0.55f, 1.00f);
+        DrawBtnLabel(ui, "PATH", contentX0, y0, contentX1, y1);
     }
 
     // Row 1: BREAK + [breakCount box]
@@ -436,8 +426,8 @@ void Viewer::renderUi()
         const float btnX1 = boxX0 - boxGap;
 
         // break button (yellow)
-        PushRect_(ui, btnX0, y0, btnX1, y1, 1.00f, 0.92f, 0.10f);
-        DrawBtnLabel_(ui, "BREAK", btnX0, y0, btnX1, y1);
+        PushRect(ui, btnX0, y0, btnX1, y1, 1.00f, 0.92f, 0.10f);
+        DrawBtnLabel(ui, "BREAK", btnX0, y0, btnX1, y1);
 
         // breakCount input box
         drawBox(boxX0, y0, boxX1, y1, uiFocus == UI::BreakCount);
@@ -463,22 +453,18 @@ void Viewer::renderUi()
         const float y0 = bottomY0 + 2 * (btnH + btnGap);
         const float y1 = y0 + btnH;
 
-        PushRect_(ui, contentX0, y0, contentX1, y1, 0.65f, 0.25f, 0.95f);
-        DrawBtnLabel_(ui, "COUNT", contentX0, y0, contentX1, y1);
+        PushRect(ui, contentX0, y0, contentX1, y1, 0.65f, 0.25f, 0.95f);
+        DrawBtnLabel(ui, "COUNT", contentX0, y0, contentX1, y1);
     }
 
-    // +++ add: Row 3: PASS (PathPasser)
     {
         const float y0 = bottomY0 + 3 * (btnH + btnGap);
         const float y1 = y0 + btnH;
 
-        // same color you used for XY marker / old pass button
-        PushRect_(ui, contentX0, y0, contentX1, y1, 0.20f, 0.85f, 0.75f);
-        DrawBtnLabel_(ui, "PASS", contentX0, y0, contentX1, y1);
+        PushRect(ui, contentX0, y0, contentX1, y1, 0.20f, 0.85f, 0.75f);
+        DrawBtnLabel(ui, "PASS", contentX0, y0, contentX1, y1);
     }
-    // --- add
 
-    // upload + draw
     glBindBuffer(GL_ARRAY_BUFFER, uiVbo);
     glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(ui.size() * sizeof(Vertex)), ui.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

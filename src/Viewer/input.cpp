@@ -169,7 +169,7 @@ void Viewer::initUiCallbacks()
         const float buildY1 = yTop;
         const float buildY0 = buildY1 - buildH;
 
-        if (Hit_(mx, my, contentX0, buildY0, contentX1, buildY1))
+        if (Hit(mx, my, contentX0, buildY0, contentX1, buildY1))
         {
             self->uiFocus = UI::None;
             self->uiEdit.clear();
@@ -189,7 +189,7 @@ void Viewer::initUiCallbacks()
         const float seedY1 = seedLabelY0 - 0.012f;
         const float seedY0 = seedY1 - seedH;
 
-        if (Hit_(mx, my, contentX0, seedY0, contentX1, seedY1))
+        if (Hit(mx, my, contentX0, seedY0, contentX1, seedY1))
         {
             self->uiFocus = UI::Seed;
             self->uiEdit = std::to_string(self->uiSeed);
@@ -215,7 +215,7 @@ void Viewer::initUiCallbacks()
         const float yBoxX0 = midX + xyGapX * 0.5f;
         const float yBoxX1 = contentX1;
 
-        if (Hit_(mx, my, xBoxX0, xyY0, xBoxX1, xyY1))
+        if (Hit(mx, my, xBoxX0, xyY0, xBoxX1, xyY1))
         {
             self->uiFocus = UI::StartX;
             self->uiEdit = std::to_string(self->uiStartX);
@@ -223,25 +223,14 @@ void Viewer::initUiCallbacks()
             return;
         }
 
-        if (Hit_(mx, my, yBoxX0, xyY0, yBoxX1, xyY1))
+        if (Hit(mx, my, yBoxX0, xyY0, yBoxX1, xyY1))
         {
             self->uiFocus = UI::StartY;
             self->uiEdit = std::to_string(self->uiStartY);
             self->updateWindowTitle();
             return;
         }
-        // --- add
-
-        // --- remove: PathPasser button under X/Y (match ui.cpp)
-        // delete this whole block:
-        // {
-        //     const float passH = 0.11f;
-        //     const float passY1 = xyY0 - gap;
-        //     const float passY0 = passY1 - passH;
-        //     if (Hit_(mx, my, contentX0, passY0, contentX1, passY1)) { ... }
-        // }
-
-        // Bottom: buttons (match ui.cpp)
+        
         const float btnH = 0.11f;
         const float btnGap = 0.018f;
         const float bottomY0 = panelY0 + padY;
@@ -250,7 +239,7 @@ void Viewer::initUiCallbacks()
         {
             const float y0 = bottomY0 + 0 * (btnH + btnGap);
             const float y1 = y0 + btnH;
-            if (Hit_(mx, my, contentX0, y0, contentX1, y1))
+            if (Hit(mx, my, contentX0, y0, contentX1, y1))
             {
                 self->uiFocus = UI::None;
                 self->uiEdit.clear();
@@ -277,7 +266,7 @@ void Viewer::initUiCallbacks()
             const float btnX1 = boxX0 - boxGap;
 
             // click on breakCount input box
-            if (Hit_(mx, my, boxX0, y0, boxX1, y1))
+            if (Hit(mx, my, boxX0, y0, boxX1, y1))
             {
                 self->uiFocus = UI::BreakCount;
                 self->uiEdit = std::to_string(std::clamp(self->uiBreakCount, 0, 9)); // <<< 1 digit
@@ -286,7 +275,7 @@ void Viewer::initUiCallbacks()
             }
 
             // click on BREAK button
-            if (Hit_(mx, my, btnX0, y0, btnX1, y1))
+            if (Hit(mx, my, btnX0, y0, btnX1, y1))
             {
                 self->uiFocus = UI::None;
                 self->uiEdit.clear();
@@ -305,7 +294,7 @@ void Viewer::initUiCallbacks()
             const float y0 = bottomY0 + 2 * (btnH + btnGap);
             const float y1 = y0 + btnH;
 
-            if (Hit_(mx, my, contentX0, y0, contentX1, y1))
+            if (Hit(mx, my, contentX0, y0, contentX1, y1))
             {
                 self->uiFocus = UI::None;
                 self->uiEdit.clear();
@@ -319,12 +308,12 @@ void Viewer::initUiCallbacks()
             }
         }
 
-        // +++ add: Row 3: PASS (PathPasser)
+        //Row 3: PASS (PathPasser)
         {
             const float y0 = bottomY0 + 3 * (btnH + btnGap);
             const float y1 = y0 + btnH;
 
-            if (Hit_(mx, my, contentX0, y0, contentX1, y1))
+            if (Hit(mx, my, contentX0, y0, contentX1, y1))
             {
                 self->uiFocus = UI::None;
                 self->uiEdit.clear();
@@ -337,6 +326,5 @@ void Viewer::initUiCallbacks()
                 return;
             }
         }
-        // --- add
     });
 }

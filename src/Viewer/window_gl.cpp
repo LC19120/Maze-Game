@@ -2,7 +2,7 @@
 #include "Viewer/ViewerInternal.hpp"
 
 
-static GLuint CompileShader_(GLenum type, const char* src)
+static GLuint CompileShader(GLenum type, const char* src)
 {
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &src, nullptr);
@@ -117,8 +117,8 @@ void Viewer::initWindowAndGL()
         }
     )GLSL";
 
-    GLuint vs = CompileShader_(GL_VERTEX_SHADER, vsSrc);
-    GLuint fs = CompileShader_(GL_FRAGMENT_SHADER, fsSrc);
+    GLuint vs = CompileShader(GL_VERTEX_SHADER, vsSrc);
+    GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fsSrc);
     if (!vs || !fs)
     {
         if (vs) glDeleteShader(vs);
