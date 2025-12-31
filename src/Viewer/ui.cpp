@@ -1,7 +1,6 @@
 #include "Viewer/core.hpp"
 #include "Viewer/ViewerInternal.hpp"
 
-#include <algorithm>
 #include <array>
 #include <string_view>
 #include <cmath>
@@ -193,6 +192,21 @@ namespace
     }
 }
 
+// +++ add: helper to draw centered button label (uses existing 5x7 text helpers)
+static void DrawBtnLabel_(std::vector<Vertex>& out,
+                          std::string_view label,
+                          float x0, float y0, float x1, float y1,
+                          float pix = 0.0100f,
+                          float r = 0.08f, float g = 0.08f, float b = 0.08f)
+{
+    const float tw = TextWidth5x7_(label, pix);
+    const float th = 7.0f * pix;
+    const float tx = (x0 + x1) * 0.5f - tw * 0.5f;
+    const float ty = (y0 + y1) * 0.5f - th * 0.5f;
+    PushText5x7_(out, label, tx, ty, pix, pix, r, g, b);
+}
+// --- add
+
 void Viewer::renderUi()
 {
     std::vector<Vertex> ui;
@@ -343,26 +357,69 @@ void Viewer::renderUi()
                   0.92f, 0.92f, 0.92f);
     // --- add
 
+    // --- remove: PathPasser button UNDER X/Y
+    // (delete the whole old PASS button block here)
+
+    // +++ add: Result box UNDER X/Y (shows PATH/BREAK length or COUNT ways)
+    {
+        const float resH  = 0.11f;
+        const float resY1 = xyY0 - gap;
+        const float resY0 = resY1 - resH;
+
+        // box style (not focusable)
+        drawBox(contentX0, resY0, contentX1, resY1, false);
+
+        // decide what to show based on last clicked algo (uiAlgoIndex)
+        std::string_view tag = "LEN";
+        int value = 0;
+
+        if (uiAlgoIndex == 2) // COUNT
+        {
+            tag = "WAYS";
+            value = (anim.totalPaths > 0) ? anim.totalPaths : std::max(0, lastCountWays);
+        }
+        else if (uiAlgoIndex == 1) // BREAK
+        {
+            tag = "LEN";
+            value = std::max(0, lastBreakLen);
+        }
+        else if (uiAlgoIndex == 3) // +++ PASS
+        {
+            tag = "LEN";
+            value = std::max(0, lastPassLen);
+        }
+        else // PATH (A*)
+        {
+            tag = "LEN";
+            value = std::max(0, lastPathLen);
+        }
+
+        // left label
+        const float pix = 0.0085f;
+        PushText5x7_(ui, tag,
+                     contentX0 + 0.018f, resY0 + 0.030f,
+                     pix, pix,
+                     0.92f, 0.92f, 0.92f);
+
+        // right number
+        PushInt7Tight(ui, value,
+                      contentX1 - 0.33f, resY0 + 0.018f,
+                      0.31f, (resY1 - resY0) - 0.036f,
+                      0.92f, 0.92f, 0.92f);
+    }
+    // --- add
+
     // ---- Bottom: PATH / BREAK[...] / COUNT
     const float btnH = 0.11f;
     const float btnGap = 0.018f;
     const float bottomY0 = panelY0 + padY;
-
-    auto drawBtnLabel = [&](std::string_view label, float x0, float y0, float x1, float y1)
-    {
-        const float pix = 0.0100f;
-        const float tw  = TextWidth5x7_(label, pix);
-        const float tx  = (x0 + x1) * 0.5f - tw * 0.5f;
-        const float ty  = (y0 + y1) * 0.5f - (7.0f * pix) * 0.5f;
-        PushText5x7_(ui, label, tx, ty, pix, pix, 0.08f, 0.08f, 0.08f);
-    };
 
     // Row 0: PATH
     {
         const float y0 = bottomY0 + 0 * (btnH + btnGap);
         const float y1 = y0 + btnH;
         PushRect_(ui, contentX0, y0, contentX1, y1, 0.20f, 0.55f, 1.00f);
-        drawBtnLabel("PATH", contentX0, y0, contentX1, y1);
+        DrawBtnLabel_(ui, "PATH", contentX0, y0, contentX1, y1);
     }
 
     // Row 1: BREAK + [breakCount box]
@@ -380,7 +437,7 @@ void Viewer::renderUi()
 
         // break button (yellow)
         PushRect_(ui, btnX0, y0, btnX1, y1, 1.00f, 0.92f, 0.10f);
-        drawBtnLabel("BREAK", btnX0, y0, btnX1, y1);
+        DrawBtnLabel_(ui, "BREAK", btnX0, y0, btnX1, y1);
 
         // breakCount input box
         drawBox(boxX0, y0, boxX1, y1, uiFocus == UI::BreakCount);
@@ -405,9 +462,21 @@ void Viewer::renderUi()
     {
         const float y0 = bottomY0 + 2 * (btnH + btnGap);
         const float y1 = y0 + btnH;
+
         PushRect_(ui, contentX0, y0, contentX1, y1, 0.65f, 0.25f, 0.95f);
-        drawBtnLabel("COUNT", contentX0, y0, contentX1, y1);
+        DrawBtnLabel_(ui, "COUNT", contentX0, y0, contentX1, y1);
     }
+
+    // +++ add: Row 3: PASS (PathPasser)
+    {
+        const float y0 = bottomY0 + 3 * (btnH + btnGap);
+        const float y1 = y0 + btnH;
+
+        // same color you used for XY marker / old pass button
+        PushRect_(ui, contentX0, y0, contentX1, y1, 0.20f, 0.85f, 0.75f);
+        DrawBtnLabel_(ui, "PASS", contentX0, y0, contentX1, y1);
+    }
+    // --- add
 
     // upload + draw
     glBindBuffer(GL_ARRAY_BUFFER, uiVbo);

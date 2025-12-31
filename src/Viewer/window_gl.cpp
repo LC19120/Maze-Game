@@ -1,8 +1,6 @@
 #include "Viewer/core.hpp"
 #include "Viewer/ViewerInternal.hpp"
 
-#include <iostream>
-#include <algorithm>
 
 static GLuint CompileShader_(GLenum type, const char* src)
 {

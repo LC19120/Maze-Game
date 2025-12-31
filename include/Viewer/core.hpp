@@ -36,7 +36,6 @@ private:
 
     void applyEdit();
 
-
     // render
     void drawMaze();
     void renderUi();
@@ -47,6 +46,10 @@ private:
     void buildMaze(int seed);
     void findPath(int sx, int sy, int ex, int ey, int algoIndex);
     void tickPathAnim_();
+
+    // +++ add: pass-through (via X/Y point)
+    void passPath(uint32_t x, uint32_t y);
+    // --- add
 
     struct PathAnim
     {
@@ -62,10 +65,8 @@ private:
         int visitedVal = 15;
         int pathVal    = 5;
 
-        // +++ add: for BREAK, remember which cells were walls before breaking (size W*H, 0/1)
         bool hasOrigWall = false;
         std::vector<uint8_t> origWall;
-        // --- add
 
         size_t lastVisitedN = (size_t)-1;
         size_t lastPathN    = (size_t)-1;
@@ -73,7 +74,11 @@ private:
         // COUNT playback data
         std::vector<std::vector<Point>> allPaths;
         int totalPaths = 0;
-        size_t lastK = 0;
+
+        // --- change: replace lastK with per-path progress
+        std::vector<size_t> lastLenPerPath;   // each path grows from start simultaneously
+        // --- change
+
         std::vector<int32_t> passCount;
     } anim;
 
@@ -94,7 +99,7 @@ private:
 
     int vertexCount = 0;
     int uiVertexCount = 0;
-    
+
     int meshBuiltFbW = 0;
     int meshBuiltFbH = 0;
 
@@ -115,7 +120,15 @@ private:
     int uiEndX = 1, uiEndY = 1;
     int uiUpdateEvery = 4;
     int uiDelayMs = 0;
-    // algo: 0=PATH, 1=BREAK, 2=COUNT
     int uiAlgoIndex = 0;
 
+    // results shown in the "path info" box
+    int lastPathLen  = 0;   // PATH (A*)
+    int lastBreakLen = 0;   // BREAK
+    int lastCountWays = 0;  // COUNT (already existed)
+    int lastPassLen  = 0;   // PASS
+
+    // +++ add: stable base wall snapshot (prevents animation from changing maze topology)
+    std::vector<uint8_t> baseWall; // 1 = wall, 0 = empty
+    // --- add
 };

@@ -190,14 +190,12 @@ WallBreaker::BreakWalls(Maze maze, int32_t breakCount)
 std::tuple<std::pair<std::vector<std::vector<Point>>, std::vector<int32_t>>, int32_t, std::chrono::milliseconds>
 PathCounter::CountPaths(Maze maze, Point start, Point end)
 {
-    //多路径计数
-     auto startTime = std::chrono::high_resolution_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     std::vector<std::vector<Point>> allPaths;
     std::vector<int32_t> lengths;
     std::vector<Point> current;
 
-    // 起点即终点
     if (start == end)
     {
         allPaths.push_back({ start });
@@ -208,19 +206,9 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
     const int dx[4] = { 1, -1, 0, 0 };
     const int dy[4] = { 0, 0, 1, -1 };
 
-    // 点访问标记：防止节点重复（防自环）
+    // 点访问标记：防止节点重复（简单路径）
     std::vector<std::vector<bool>> visited(
         maze.height, std::vector<bool>(maze.width, false));
-
-    // 边访问标记：防止路径层面的环
-    std::set<std::pair<int, int>> usedEdges;
-
-    // 无向边唯一 key
-    auto edgeKey = [&](Point a, Point b) {
-        int k1 = a.y * maze.width + a.x;
-        int k2 = b.y * maze.width + b.x;
-        return std::minmax(k1, k2);
-    };
 
     std::function<void(Point)> dfs = [&](Point p)
     {
@@ -243,12 +231,7 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
                 if (maze.IsWall(nx, ny)) continue;
                 if (visited[ny][nx]) continue;
 
-                auto e = edgeKey(p, { nx, ny });
-                if (usedEdges.count(e)) continue;
-
-                usedEdges.insert(e);
                 dfs({ nx, ny });
-                usedEdges.erase(e);
             }
         }
 
@@ -269,11 +252,10 @@ PathCounter::CountPaths(Maze maze, Point start, Point end)
     };
 }
 
-// minimum way passed by x,y
 std::tuple<std::vector<Point>, std::vector<Point>,std::vector<Point>, int32_t, std::chrono::milliseconds>
 PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
 {
-   auto startTime = std::chrono::high_resolution_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     Point mid{ static_cast<int>(x), static_cast<int>(y) };
 
@@ -290,10 +272,17 @@ PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
         return y * maze.width + x;
     };
 
-    // ================= 双向 BFS 函数 =================
     auto biBFS = [&](Point start, Point end,
                      std::vector<Point>& visitedOut) -> std::vector<Point>
     {
+        // +++ add: trivial case
+        if (start == end)
+        {
+            visitedOut.push_back(start);
+            return { start };
+        }
+        // --- add
+
         std::queue<Point> q1, q2;
         std::unordered_map<int, Point> prev1, prev2;
         std::unordered_set<int> vis1, vis2;
@@ -307,8 +296,7 @@ PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
 
         while (!q1.empty() && !q2.empty())
         {
-            // ---------- 正向 ----------
-            int s1 = q1.size();
+            int s1 = (int)q1.size();
             while (s1--)
             {
                 Point cur = q1.front(); q1.pop();
@@ -335,8 +323,7 @@ PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
                 }
             }
 
-            // ---------- 反向 ----------
-            int s2 = q2.size();
+            int s2 = (int)q2.size();
             while (s2--)
             {
                 Point cur = q2.front(); q2.pop();
@@ -389,6 +376,29 @@ PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
         return path1;
     };
 
+    // +++ add: if mid is start/end, it should degenerate to normal shortest path
+    if (mid == maze.start)
+    {
+        std::vector<Point> visitedSE;
+        auto pathSE = biBFS(maze.start, maze.end, visitedSE);
+
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+        return { pathSE, visitedSE, empty, (int32_t)pathSE.size(), duration };
+    }
+    if (mid == maze.end)
+    {
+        std::vector<Point> visitedSE;
+        auto pathSE = biBFS(maze.start, maze.end, visitedSE);
+
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+        return { pathSE, visitedSE, empty, (int32_t)pathSE.size(), duration };
+    }
+    // --- add
+
     // ================= 执行两段 =================
     std::vector<Point> visitedSP, visitedPE;
     auto path1 = biBFS(maze.start, mid, visitedSP);
@@ -400,7 +410,6 @@ PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
                  std::chrono::milliseconds(0) };
     }
 
-    // 去掉重复的 mid
     path1.pop_back();
     path1.insert(path1.end(), path2.begin(), path2.end());
 
@@ -415,5 +424,5 @@ PathPasser::PassPath(Maze maze, uint32_t x, uint32_t y)
         static_cast<int32_t>(path1.size()),
         duration
     };
-} 
 }
+

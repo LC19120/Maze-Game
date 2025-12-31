@@ -28,6 +28,6 @@ class PathCounter : public PathFinder
 class PathPasser : public PathFinder
 {
     public:
-        static std::tuple<std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
+        static std::tuple<std::vector<Point>, std::vector<Point>, std::vector<Point>, int32_t, std::chrono::milliseconds>
         PassPath(Maze maze, uint32_t x, uint32_t y);
 };

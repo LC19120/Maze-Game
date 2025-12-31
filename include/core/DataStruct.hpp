@@ -5,7 +5,6 @@ struct Point
 {
     int32_t x;
     int32_t y;
-    std::string info;
 
     bool operator==(const Point& other) const
     {
@@ -16,7 +15,6 @@ struct Point
 struct Maze{
     std::vector<std::vector<int32_t>> grid{};
     int32_t seed{};
-    std::string info;
     int32_t width, height;
     Point start, end;
 

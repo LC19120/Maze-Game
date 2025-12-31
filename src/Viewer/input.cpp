@@ -197,7 +197,51 @@ void Viewer::initUiCallbacks()
             return;
         }
 
-        // Bottom: 3 buttons (match ui.cpp)
+        // +++ add: X/Y input boxes click (match ui.cpp)
+        const float xyH = 0.12f;
+
+        const float xyLabelY1 = seedY0 - gap;
+        const float xyLabelY0 = xyLabelY1 - seedLabelH;
+
+        const float xyY1 = xyLabelY0 - 0.012f;
+        const float xyY0 = xyY1 - xyH;
+
+        const float xyGapX = 0.03f;
+        const float midX = (contentX0 + contentX1) * 0.5f;
+
+        const float xBoxX0 = contentX0;
+        const float xBoxX1 = midX - xyGapX * 0.5f;
+
+        const float yBoxX0 = midX + xyGapX * 0.5f;
+        const float yBoxX1 = contentX1;
+
+        if (Hit_(mx, my, xBoxX0, xyY0, xBoxX1, xyY1))
+        {
+            self->uiFocus = UI::StartX;
+            self->uiEdit = std::to_string(self->uiStartX);
+            self->updateWindowTitle();
+            return;
+        }
+
+        if (Hit_(mx, my, yBoxX0, xyY0, yBoxX1, xyY1))
+        {
+            self->uiFocus = UI::StartY;
+            self->uiEdit = std::to_string(self->uiStartY);
+            self->updateWindowTitle();
+            return;
+        }
+        // --- add
+
+        // --- remove: PathPasser button under X/Y (match ui.cpp)
+        // delete this whole block:
+        // {
+        //     const float passH = 0.11f;
+        //     const float passY1 = xyY0 - gap;
+        //     const float passY0 = passY1 - passH;
+        //     if (Hit_(mx, my, contentX0, passY0, contentX1, passY1)) { ... }
+        // }
+
+        // Bottom: buttons (match ui.cpp)
         const float btnH = 0.11f;
         const float btnGap = 0.018f;
         const float bottomY0 = panelY0 + padY;
@@ -274,5 +318,25 @@ void Viewer::initUiCallbacks()
                 return;
             }
         }
+
+        // +++ add: Row 3: PASS (PathPasser)
+        {
+            const float y0 = bottomY0 + 3 * (btnH + btnGap);
+            const float y1 = y0 + btnH;
+
+            if (Hit_(mx, my, contentX0, y0, contentX1, y1))
+            {
+                self->uiFocus = UI::None;
+                self->uiEdit.clear();
+
+                // mark last clicked algo as PASS for the result box
+                self->uiAlgoIndex = 3;
+
+                // pass through the entered X/Y (uiStartX/uiStartY are your X/Y inputs)
+                self->passPath((uint32_t)self->uiStartX, (uint32_t)self->uiStartY);
+                return;
+            }
+        }
+        // --- add
     });
 }
