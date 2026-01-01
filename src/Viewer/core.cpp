@@ -6,24 +6,24 @@
 #include <algorithm>
 #include <cmath>
 
+// 获取 Viewer 单例对象
 Viewer& Viewer::getInstance()
 {
     static Viewer inst;
     return inst;
 }
 
+// Viewer 构造函数
 Viewer::Viewer() = default;
 
+// Viewer 析构函数，关闭 OpenGL
 Viewer::~Viewer()
 {
-    try { 
-        shutdownGL(); 
-    } catch (...) {
-
-    }
+    shutdownGL(); 
 }
 
-void Viewer::tickPathAnim_()
+// 更新路径动画（根据动画模式刷新迷宫显示）
+void Viewer::pathAnim()
 {
     if (!anim.active) return;
     if (!mazeLoaded) { anim.active = false; return; }
@@ -40,7 +40,7 @@ void Viewer::tickPathAnim_()
     const int W = (int)maze.grid[0].size();
     const size_t N = (size_t)W * (size_t)H;
 
-    // ---- MODE 1: COUNT overlay animation (3s for all paths)
+    // MODE 1: COUNT overlay animation
     if (anim.mode == 1)
     {
         if (anim.totalPaths <= 0 || anim.allPaths.empty())
@@ -88,7 +88,7 @@ void Viewer::tickPathAnim_()
                 if (a > 1.0f) a = 1.0f;
 
                 cellAlphaOverride[idx] = a;
-                maze.grid[p.y][p.x] = 6; // COUNT color (violet)
+                maze.grid[p.y][p.x] = 6;
             }
 
             lastLen = targetLen;
@@ -104,7 +104,7 @@ void Viewer::tickPathAnim_()
         return;
     }
 
-    // ---- MODE 0: PATH/BREAK (visited->path split)
+    // ---- MODE 0: PATH/BREAK
     constexpr float VIS_PHASE = 0.70f;
     const auto visEnd = std::chrono::milliseconds((int)(TOTAL.count() * VIS_PHASE));
     const auto pathSpan = TOTAL - visEnd;
@@ -163,7 +163,7 @@ void Viewer::tickPathAnim_()
         {
             if (anim.pathVal == 7 && anim.hasOrigWall && anim.origWall.size() == N && anim.origWall[idx] == 1)
             {
-                maze.grid[p.y][p.x] = 18; // special: broken-wall-on-path
+                maze.grid[p.y][p.x] = 18;
             }
             continue;
         }
@@ -187,6 +187,7 @@ void Viewer::tickPathAnim_()
         anim.active = false;
 }
 
+// 主循环，初始化窗口和 OpenGL，渲染迷宫和 UI
 void Viewer::run()
 {
     initWindowAndGL();
@@ -206,9 +207,8 @@ void Viewer::run()
     auto* win = static_cast<GLFWwindow*>(window);
     while (win && !glfwWindowShouldClose(win))
     {
-        tickPathAnim_(); // +++ add
+        pathAnim();
 
-        // clear
         glClearColor(0.08f, 0.08f, 0.09f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -223,6 +223,7 @@ void Viewer::run()
     shutdownGL();
 }
 
+// 更新窗口标题，显示当前种子
 void Viewer::updateWindowTitle()
 {
     if (!window) return;
@@ -231,6 +232,7 @@ void Viewer::updateWindowTitle()
     glfwSetWindowTitle(static_cast<GLFWwindow*>(window), title.c_str());
 }
 
+// 生成迷宫，并同步 UI 起终点
 void Viewer::buildMaze(int seed)
 {
     uiSeed = seed;
@@ -251,18 +253,17 @@ void Viewer::buildMaze(int seed)
     uiStartX = maze.start.x; uiStartY = maze.start.y;
     uiEndX   = maze.end.x;   uiEndY   = maze.end.y;
 
-    // +++ add: snapshot base walls
     const int H = (int)maze.grid.size();
     const int W = (H > 0) ? (int)maze.grid[0].size() : 0;
     baseWall.assign((size_t)W * (size_t)H, 0);
     for (int y = 0; y < H; ++y)
         for (int x = 0; x < W; ++x)
             baseWall[(size_t)y * (size_t)W + (size_t)x] = (maze.grid[y][x] == 1) ? 1 : 0;
-    // --- add
 
     updateWindowTitle();
 }
 
+// 寻找路径或计数路径，根据算法类型更新动画和迷宫状态
 void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
 {
     if (!mazeLoaded) return;
@@ -274,8 +275,6 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
     if (W <= 0 || H <= 0) return;
 
     const size_t N = (size_t)W * (size_t)H;
-
-    // +++ add: restore maze from baseWall (prevents previous animations from altering topology)
     if (baseWall.size() == N)
     {
         for (int y = 0; y < H; ++y)
@@ -289,7 +288,6 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
             for (int x = 0; x < W; ++x)
                 if (maze.grid[y][x] != 1) maze.grid[y][x] = 0;
     }
-    // --- add
 
     sx = std::clamp(sx, 0, W - 1);
     sy = std::clamp(sy, 0, H - 1);
@@ -301,17 +299,14 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
     maze.width = W;
     maze.height = H;
 
-    // keep endpoints walkable (and keep baseWall consistent too)
     if (maze.InBounds(sx, sy)) maze.grid[sy][sx] = 0;
     if (maze.InBounds(ex, ey)) maze.grid[ey][ex] = 0;
 
-    // +++ add: reflect endpoint carve into baseWall so future restores match
     if (baseWall.size() == N)
     {
         baseWall[(size_t)sy * (size_t)W + (size_t)sx] = 0;
         baseWall[(size_t)ey * (size_t)W + (size_t)ex] = 0;
     }
-    // --- add
 
     alphaOverrideActive = false;
     cellAlphaOverride.clear();
@@ -335,9 +330,7 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
         anim.allPaths = std::move(allPaths);
         anim.totalPaths = std::max<int>(0, ways);
 
-        // +++ add: init per-path progress (start together)
         anim.lastLenPerPath.assign(anim.allPaths.size(), 0);
-        // --- add
 
         anim.passCount.clear();
 
@@ -370,7 +363,7 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
         path = std::get<0>(result);
         visited = std::get<1>(result);
 
-        lastBreakLen = (int)path.size();   // +++ add
+        lastBreakLen = (int)path.size();
 
         anim.pathVal = 7;
         anim.visitedVal = 17;
@@ -403,6 +396,7 @@ void Viewer::findPath(int sx, int sy, int ex, int ey, int algoIndex)
     updateWindowTitle();
 }
 
+// 处理窗口尺寸变化，更新帧缓冲区宽高
 void Viewer::onFramebufferResized(int width, int height)
 {
     fbW = std::max(1, width);
@@ -410,8 +404,8 @@ void Viewer::onFramebufferResized(int width, int height)
     // 不需要在这里 rebuild mesh；drawMaze() 每帧都会按 fbW/fbH 设 viewport
 }
 
-// +++ add: PathPasser button action (force start/end = 1,1 -> size-2,size-2; go through (x,y))
-void Viewer::passPath(uint32_t x, uint32_t y)
+// PathPasser 按钮功能：强制路径经过指定点
+void Viewer::passPath(int32_t x, int32_t y)
 {
     if (!mazeLoaded) return;
 
@@ -421,9 +415,7 @@ void Viewer::passPath(uint32_t x, uint32_t y)
 
     const size_t N = (size_t)W * (size_t)H;
 
-    // restore topology from baseWall (prevents previous animations from changing the maze)
-    if (baseWall.size() == N)
-    {
+    if (baseWall.size() == N) {
         for (int yy = 0; yy < H; ++yy)
             for (int xx = 0; xx < W; ++xx)
                 maze.grid[yy][xx] = baseWall[(size_t)yy * (size_t)W + (size_t)xx] ? 1 : 0;
@@ -451,8 +443,8 @@ void Viewer::passPath(uint32_t x, uint32_t y)
     }
 
     // clamp mid
-    const int mx = std::clamp<int>((int)x, 0, W - 1);
-    const int my = std::clamp<int>((int)y, 0, H - 1);
+    const int32_t mx = std::clamp<int32_t>((int32_t)x, 0, W - 1);
+    const int32_t my = std::clamp<int32_t>((int32_t)y, 0, H - 1);
 
     alphaOverrideActive = false;
     cellAlphaOverride.clear();

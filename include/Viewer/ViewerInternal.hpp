@@ -19,13 +19,14 @@
 struct Vertex
 {
     float x, y;
-    float r, g, b, a; // +++ add alpha
+    float r, g, b, a;
 };
 
+// 向顶点数组添加一个矩形
 inline void PushRect(std::vector<Vertex>& out,
                       float x0, float y0, float x1, float y1,
                       float r, float g, float b,
-                      float a = 1.0f) // +++ default opaque
+                      float a = 1.0f)
 {
     out.push_back({x0, y0, r, g, b, a});
     out.push_back({x1, y0, r, g, b, a});
@@ -36,6 +37,7 @@ inline void PushRect(std::vector<Vertex>& out,
     out.push_back({x0, y1, r, g, b, a});
 }
 
+// 判断点 (mx, my) 是否在矩形
 inline bool Hit(float mx, float my, float x0, float y0, float x1, float y1)
 {
     return mx >= x0 && mx <= x1 && my >= y0 && my <= y1;

@@ -2,7 +2,6 @@
 #include "Viewer/ViewerInternal.hpp"
 
 #include <algorithm>
-#include <sstream>
 
 void Viewer::applyEdit()
 {
@@ -20,11 +19,15 @@ void Viewer::applyEdit()
 
     case UI::BreakCount:
         parseInt(uiBreakCount);
-        uiBreakCount = std::clamp(uiBreakCount, 0, 9); // <<< 1 digit
+        uiBreakCount = std::clamp(uiBreakCount, 0, 9);
         break;
 
-    case UI::StartX:      parseInt(uiStartX);      break;
-    case UI::StartY:      parseInt(uiStartY);      break;
+    case UI::StartX:
+        parseInt(uiStartX);
+        break;
+    case UI::StartY:
+        parseInt(uiStartY);
+        break;
     case UI::EndX:        parseInt(uiEndX);        break;
     case UI::EndY:        parseInt(uiEndY);        break;
     case UI::UpdateEvery: parseInt(uiUpdateEvery); break;
@@ -258,7 +261,7 @@ void Viewer::initUiCallbacks()
             const float y0 = bottomY0 + 1 * (btnH + btnGap);
             const float y1 = y0 + btnH;
 
-            const float boxW = btnH;          // square (keep)
+            const float boxW = btnH;
             const float boxGap = 0.012f;
             const float boxX0 = contentX1 - boxW;
             const float boxX1 = contentX1;

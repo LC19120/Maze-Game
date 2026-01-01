@@ -285,7 +285,6 @@ void Viewer::renderUi()
              (contentX1 - contentX0) - 0.04f, (seedY1 - seedY0) - 0.04f,
              0.92f, 0.92f, 0.92f);
 
-    // +++ add: X / Y input boxes under SEED (visual only, same style)
     const float xyH = 0.12f;
 
     const float xyLabelY1 = seedY0 - gap;
@@ -345,12 +344,7 @@ void Viewer::renderUi()
                   yBoxX0 + 0.02f, xyY0 + 0.02f,
                   (yBoxX1 - yBoxX0) - 0.04f, (xyY1 - xyY0) - 0.04f,
                   0.92f, 0.92f, 0.92f);
-    // --- add
 
-    // --- remove: PathPasser button UNDER X/Y
-    // (delete the whole old PASS button block here)
-
-    // +++ add: Result box UNDER X/Y (shows PATH/BREAK length or COUNT ways)
     {
         const float resH  = 0.11f;
         const float resY1 = xyY0 - gap;
