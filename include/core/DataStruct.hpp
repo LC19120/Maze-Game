@@ -18,11 +18,11 @@ struct Maze{
     int32_t width, height;
     Point start, end;
 
-    bool InBounds(int x, int y) const {
+    bool InBounds(int32_t x, int32_t y) const {
         return x >= 0 && y >= 0 && y < (int32_t)grid.size() && x < (int32_t)grid[0].size();
     }
 
-    bool IsWall(int x, int y) const {
+    bool IsWall(int32_t x, int32_t y) const {
         return InBounds(x, y) ? grid[y][x] == 1 : true;
     }
     
