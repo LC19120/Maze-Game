@@ -11,9 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# -----------------------------
-# Third-party (Mac)
-# -----------------------------
+
 set(THIRDPARTY_MAC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ThirdPart/Mac")
 set(THIRDPARTY_MAC_INC "${THIRDPARTY_MAC_DIR}/include")
 set(THIRDPARTY_MAC_LIB "${THIRDPARTY_MAC_DIR}/lib")
@@ -34,9 +32,6 @@ find_library(FW_IOKIT IOKit REQUIRED)
 find_library(FW_COREVIDEO CoreVideo REQUIRED)
 find_library(FW_OPENGL OpenGL REQUIRED)
 
-# -----------------------------
-# Core library
-# -----------------------------
 add_library(MazeCore
     src/core/MazeBuilder.cpp
     src/core/PathFinder.cpp
@@ -75,10 +70,3 @@ target_link_libraries(${PROJECT_NAME}
         MazeCore
 )
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  target_compile_options(MazeCore PUBLIC -fsanitize=address -fno-omit-frame-pointer -g)
-  target_link_options(MazeCore PUBLIC -fsanitize=address)
-
-  target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
-  target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address)
-endif()

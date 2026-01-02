@@ -1,2 +1,0 @@
-/usr/bin/ar qc libMazeCore.a CMakeFiles/MazeCore.dir/src/core/MazeBuilder.cpp.o CMakeFiles/MazeCore.dir/src/core/PathFinder.cpp.o CMakeFiles/MazeCore.dir/src/Viewer/core.cpp.o CMakeFiles/MazeCore.dir/src/Viewer/window_gl.cpp.o CMakeFiles/MazeCore.dir/src/Viewer/input.cpp.o CMakeFiles/MazeCore.dir/src/Viewer/ui.cpp.o CMakeFiles/MazeCore.dir/src/Viewer/maze_render.cpp.o CMakeFiles/MazeCore.dir/src/app.cpp.o
-/usr/bin/ranlib libMazeCore.a
